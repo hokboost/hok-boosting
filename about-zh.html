@@ -10,6 +10,7 @@
     nav a { color: #f0c040; margin: 0 15px; text-decoration: none; font-weight: bold; font-size: 16px; }
     .container { padding: 20px; max-width: 900px; margin: auto; }
     iframe { border: none; border-radius: 10px; margin-top: 20px; }
+    #surprise { display: none; margin-top: 20px; color: #f0c040; text-align: center; }
   </style>
 </head>
 <body>
@@ -39,17 +40,44 @@
 
   <p>我也很喜欢听歌和唱歌，尤其是 <strong>林俊杰</strong> 和 <strong>周杰伦</strong> 的歌，听歌让我情绪稳定，我经常会放空大脑，带上耳机，沉浸在音乐的世界里。唱歌对我来说是一个放松的方式，虽然常常跑调，但是我在老外面前唱中文歌他们也不知道我跑调了啊哈哈哈哈。</p>
 
-  <p>最近我最喜欢的一首歌是 <strong>林俊杰的《谢幕》</strong>。这首歌是为了纪念他已故的恩师林秋离而创作的。林秋离曾为《江南》作词，而《江南》正是林俊杰第一首爆红的作品。这种情感的延续让我每次听《谢幕》都能体会到JJ在写这首歌时候的心情。</p>
+  <p>最近我最喜欢的一首歌是 <strong>林俊杰的《谢幕》</strong>（Hero）。这首歌是为了纪念他已故的恩师林秋离而创作的。林秋离曾为《江南》作词，而《江南》正是林俊杰第一首爆红的作品。这种情感的延续让我每次听《谢幕》都能体会到JJ在写这首歌时候的心情。</p>
 
   <!-- 🎵 嵌入 YouTube 播放器 -->
-  <iframe width="100%" height="315" 
-    src="https://www.youtube.com/embed/YEvJnt8lXB0" 
+  <iframe id="hero-player" width="100%" height="315"
+    src="https://www.youtube.com/embed/YEvJnt8lXB0?enablejsapi=1"
     title="JJ Lin - Hero"
-    frameborder="0" 
-    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+    frameborder="0"
+    allow="autoplay; encrypted-media"
     allowfullscreen>
   </iframe>
+
+  <div id="surprise">🎉 你真的听完整首歌啦！太棒了！添加我并私信我你最喜欢的林俊杰的歌，获取神秘奖励吧！ 🎁</div>
 </div>
+
+<script>
+  let tag = document.createElement('script');
+  tag.src = "https://www.youtube.com/iframe_api";
+  document.body.appendChild(tag);
+
+  let player;
+  function onYouTubeIframeAPIReady() {
+    player = new YT.Player('hero-player', {
+      events: {
+        'onStateChange': onPlayerStateChange
+      }
+    });
+  }
+
+  let listened = false;
+  function onPlayerStateChange(event) {
+    if (event.data === YT.PlayerState.PLAYING && !listened) {
+      listened = true;
+      setTimeout(() => {
+        document.getElementById('surprise').style.display = 'block';
+      }, 210000); // 3.5 分钟
+    }
+  }
+</script>
 
 </body>
 </html>
