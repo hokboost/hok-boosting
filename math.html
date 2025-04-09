@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Math Corner - KingBoost Pro</title>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
   <style>
     body { background-color: #0e0e0e; color: #fff; font-family: Georgia, serif; margin: 0; padding: 0; }
     header { background-color: #1a1a1a; text-align: center; padding: 20px 0; }
@@ -34,22 +35,22 @@
   <h2>📚 Math Corner</h2>
   <p>When I'm not boosting in Honor of Kings, I'm often exploring the beautiful world of mathematics — especially analytic number theory.</p>
 
-  <h2>💡 an example doesn't require much background:</h2>
+  <h2>💡 Favorite Concept: Fermat Numbers and Prime Gaps</h2>
   <p>Fermat numbers are defined as \( F_n = 2^{2^n} + 1 \). They’re fascinating because each one introduces a new prime factor — they’re pairwise coprime! This helps prove that there are infinitely many primes, and leads to the inequality:</p>
   <p><strong>\( p_n < 2^{2^n} \)</strong></p>
 
   <h2>🧮 A Recent Problem I Enjoyed</h2>
-  <pre><code>Theorem (Polya): If 1 \leq n < m, then gcd(F_n, F_m) = 1.
+  <p>Theorem (Polya): If \(1 \leq n < m\), then \(\gcd(F_n, F_m) = 1\).</p>
+  <p><em>Proof Sketch:</em></p>
+  <ul>
+    <li>Let \( F_n = 2^{2^n} + 1 \)</li>
+    <li>Assume \( m = n + k \)</li>
+    <li>Show that \( F_n \mid F_m - 2 \)</li>
+    <li>Use this to deduce any common divisor must be 1</li>
+    <li>Conclude \( F_n \) and \( F_m \) are coprime</li>
+  </ul>
 
-Proof Sketch:
-- Let F_n = 2^{2^n} + 1
-- Assume m = n + k
-- Show that F_n divides F_m - 2
-- Use this to deduce any common divisor must be 1
-- Conclude F_n and F_m are coprime
-  </code></pre>
-
-  <p>It’s elegant how number theory can link primes, divisibility, and even geometry in such clean ways. I sometimes work through problems from Ram Murty's book just for fun.I plan to create some lecture slides for basic analytic number theory.</p>
+  <p>It’s elegant how number theory can link primes, divisibility, and even geometry in such clean ways. I sometimes work through problems from Ram Murty's book just for fun.</p>
 
   <h2>📖 Coming Soon</h2>
   <ul>
