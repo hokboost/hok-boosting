@@ -2,46 +2,109 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-   <h2>🎵 More Music</h2>
+  <title>🎵 More Music - KingBoost Pro</title>
   <style>
-    body { background-color: #0e0e0e; color: white; font-family: Arial, sans-serif; text-align: center; padding-top: 60px; }
-    h1 { color: #f0c040; }
-    iframe { border-radius: 12px; margin-top: 20px; }
+    body {
+      background-color: #0e0e0e;
+      color: white;
+      font-family: Arial, sans-serif;
+      padding: 40px 20px;
+      margin: 0;
+      text-align: center;
+    }
+
+    h1 {
+      color: #f0c040;
+      margin-bottom: 20px;
+    }
+
+    .grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 30px;
+      max-width: 1200px;
+      margin: auto;
+    }
+
+    .video {
+      flex: 1 1 45%;
+      max-width: 600px;
+    }
+
+    iframe {
+      width: 100%;
+      height: 315px;
+      border-radius: 12px;
+    }
+
+    .caption {
+      margin-top: 10px;
+      color: #ccc;
+    }
   </style>
 </head>
 <body>
 
-  
-  <p>JJ sing Jay Chou song</p>
+  <h1>🎵 More Music</h1>
 
-  <iframe
-  width="100%" height="315"
-  src="https://www.youtube.com/embed/dGv_3zxQVOY?autoplay=1"
-  title="JJ Lin - 不能说的秘密"
-  frameborder="0"
-  allow="autoplay; encrypted-media"
-  allowfullscreen>
-</iframe>
-  <h2>🎶 The Best Honor of Kings Song (For Me)</h2>
+  <div class="grid">
+    <div class="video">
+      <iframe src="https://www.youtube.com/embed/dGv_3zxQVOY?autoplay=1"
+              title="JJ Lin - Secret"
+              frameborder="0"
+              allow="autoplay; encrypted-media"
+              allowfullscreen></iframe>
+      <div class="caption">JJ sings Jay Chou's "不能说的秘密"</div>
+    </div>
 
-<p style="text-align: center;">
-  <iframe width="100%" height="315"
-    src="https://www.youtube.com/embed/ijaBUnsK1C4"
-    title="The Best Honor of Kings Song"
-    frameborder="0"
-    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-    allowfullscreen>
-  </iframe>
-</p>
-<p>In memory of the great Khalil Fong (方大同), whose music continues to inspire.</p>
+    <div class="video">
+      <iframe src="https://www.youtube.com/embed/ijaBUnsK1C4"
+              title="The Best Honor of Kings Song"
+              frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen></iframe>
+      <div class="caption">Best Honor of Kings Theme (My Favorite)</div>
+    </div>
 
-<iframe width="100%" height="315"
-  src="https://www.youtube.com/embed/_-Ci1sXiWvU"
-  title="Khalil Fong - Final Song"
-  frameborder="0"
-  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-  allowfullscreen>
-</iframe>
+    <div class="video">
+      <iframe src="https://www.youtube.com/embed/_-Ci1sXiWvU"
+              title="Khalil Fong - Final Song"
+              frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen></iframe>
+      <div class="caption">In Memory of Khalil Fong (方大同)</div>
+    </div>
+
+    <!-- Add 3 more videos below -->
+
+    <div class="video">
+      <iframe src="https://www.youtube.com/embed/VIDEO_ID_1"
+              title="Video 4"
+              frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen></iframe>
+      <div class="caption">Video 4 Description</div>
+    </div>
+
+    <div class="video">
+      <iframe src="https://www.youtube.com/embed/VIDEO_ID_2"
+              title="Video 5"
+              frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen></iframe>
+      <div class="caption">Video 5 Description</div>
+    </div>
+
+    <div class="video">
+      <iframe src="https://www.youtube.com/embed/VIDEO_ID_3"
+              title="Video 6"
+              frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen></iframe>
+      <div class="caption">Video 6 Description</div>
+    </div>
+  </div>
+
 </body>
-  
 </html>
