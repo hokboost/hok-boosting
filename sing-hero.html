@@ -2,40 +2,26 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Mic + Pitch Test (No p5)</title>
+  <title>Mic Pitch Test (Stable)</title>
   <script src="https://cdn.jsdelivr.net/npm/ml5@0.12.2/dist/ml5.min.js"></script>
   <style>
-    body {
-      background-color: #111;
-      color: white;
-      font-family: sans-serif;
-      text-align: center;
-      padding-top: 60px;
-    }
-    h1 {
-      color: #f0c040;
-    }
-    #note {
-      font-size: 2em;
-      margin-top: 20px;
-    }
-    button {
-      padding: 10px 20px;
-      font-size: 18px;
-      margin-top: 30px;
-    }
+    body { background: #111; color: white; font-family: sans-serif; text-align: center; padding-top: 60px; }
+    h1 { color: #f0c040; }
+    #note { font-size: 2em; margin-top: 20px; }
+    button { padding: 10px 20px; font-size: 18px; margin-top: 30px; }
   </style>
 </head>
 <body>
 
-<h1>🎤 Mic Test (Pure JS)</h1>
+<h1>🎤 Mic Test (Stable Version)</h1>
 <p id="note">Your note will appear here...</p>
-<button onclick="startPitchDetection()">Start</button>
+<button id="startBtn">Start</button>
 
 <script>
 let pitch;
 let audioContext;
 let micStream;
+let isRunning = false;
 
 function frequencyToNote(freq) {
   const A4 = 440;
@@ -46,8 +32,12 @@ function frequencyToNote(freq) {
   return `${name}${octave}`;
 }
 
-function startPitchDetection() {
-  navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+document.getElementById("startBtn").addEventListener("click", async () => {
+  if (isRunning) return;
+  isRunning = true;
+
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     audioContext = new (window.AudioContext || window.webkitAudioContext)();
     micStream = audioContext.createMediaStreamSource(stream);
 
@@ -60,11 +50,12 @@ function startPitchDetection() {
         detectPitch();
       }
     );
-  }).catch(err => {
+  } catch (err) {
     alert("⚠️ Microphone access error: " + err.message);
     console.error(err);
-  });
-}
+    isRunning = false;
+  }
+});
 
 function detectPitch() {
   if (!pitch) return;
@@ -82,5 +73,6 @@ function detectPitch() {
 
 </body>
 </html>
+
 
 
