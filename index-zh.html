@@ -18,14 +18,26 @@
   <h1>KingBoost Pro</h1>
   <nav>
     <a href="index-zh.html">首页</a>
-    <a href="services-zh.html">代练服务</a>
+    <a href="#" onclick="playAndNavigate()">代练服务</a>
     <a href="about-zh.html">关于我</a>
     <a href="reviews-zh.html">客户评价</a>
     <a href="daily-update-zh.html">日常更新</a>
     <a href="contact-zh.html">联系方式</a>
     <a href="faq-zh.html">常见问题</a>
     <a href="index.html" style="float: right;">English</a>
+    <audio id="zhSurprise" src="assets/audio/intro-zh.m4a"></audio>
   </nav>
+
+
+<script>
+  function playAndNavigate() {
+    const audio = document.getElementById("zhSurprise");
+    audio.play();
+    setTimeout(() => {
+      window.location.href = "services-zh.html";
+    }, 2000); // Wait 2 seconds before navigating
+  }
+</script>
 </header>
 
 <div class="container">
