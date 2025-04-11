@@ -2,133 +2,71 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Karaoke Pitch Match - Hero</title>
-  <script src="https://cdn.jsdelivr.net/npm/ml5@0.12.2/dist/ml5.min.js"></script>
+  <title>Hero Lyrics Quiz - KingBoost Pro</title>
   <style>
     body {
-      background-color: #111;
-      color: #fff;
+      background-color: #0e0e0e;
+      color: white;
       font-family: Arial, sans-serif;
       text-align: center;
-      padding-top: 60px;
+      padding: 40px;
     }
-    h1 { color: #f0c040; }
-    .lyric-line { font-size: 2em; margin-top: 30px; color: #f0f0f0; }
-    .note-target, .note-detect { font-size: 1.2em; margin: 10px 0; }
-    .match { color: #4caf50; }
-    .no-match { color: #e53935; }
+    h1 {
+      color: #f0c040;
+    }
+    .quiz-box {
+      background: #1a1a1a;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 600px;
+      margin: auto;
+    }
+    input[type="text"] {
+      width: 60%;
+      padding: 10px;
+      font-size: 16px;
+      margin-bottom: 15px;
+    }
     button {
-      padding: 12px 24px;
-      font-size: 18px;
+      padding: 10px 20px;
+      font-size: 16px;
       background: #f0c040;
-      color: #111;
       border: none;
-      border-radius: 8px;
+      border-radius: 5px;
       cursor: pointer;
-      margin-top: 30px;
+    }
+    .feedback {
+      margin-top: 20px;
+      font-size: 18px;
     }
   </style>
 </head>
 <body>
 
-<h1>🎤 Sing "Hero" – Match the Notes</h1>
-<p class="lyric-line" id="lyric">Press Start to Begin</p>
-<p class="note-target" id="targetNote"></p>
-<p class="note-detect" id="detectedNote">🎵 Waiting...</p>
-<button onclick="start()">Start Singing</button>
+  <h1>🎵 Hero Lyrics Quiz</h1>
+  <div class="quiz-box">
+    <p>Fill in the missing word:</p>
+    <p>你点亮多少<span id="blank">____</span> 圆满了谁的梦</p>
 
-<script>
-let pitch;
-let audioContext;
-let micStream;
-let currentIndex = 0;
+    <input type="text" id="answer" placeholder="Type your answer...">
+    <br>
+    <button onclick="checkAnswer()">Submit</button>
+    <div class="feedback" id="feedback"></div>
+  </div>
 
-const lyrics = [
-  { text: "你", note: "F4" },
-  { text: "点", note: "F4" },
-  { text: "亮", note: "F4" },
-  { text: "多", note: "F4" },
-  { text: "少", note: "E4" },
-  { text: "霓", note: "D4" },
-  { text: "虹", note: "C#4" },
-  { text: "圆", note: "C#4" },
-  { text: "满", note: "C#4" },
-  { text: "了", note: "C#4" },
-  { text: "谁", note: "C#4" },
-  { text: "的", note: "D4" },
-  { text: "梦", note: "E4" },
-];
+  <script>
+    function checkAnswer() {
+      const userAnswer = document.getElementById("answer").value.trim();
+      const correctAnswer = "霓虹";
 
-function frequencyToNote(freq) {
-  const A4 = 440;
-  const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-  const n = Math.round(12 * Math.log2(freq / A4)) + 57;
-  const name = notes[n % 12];
-  const octave = Math.floor(n / 12) - 1;
-  return `${name}${octave}`;
-}
-
-function start() {
-  navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
-    audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    micStream = audioContext.createMediaStreamSource(stream);
-
-    ml5.pitchDetection(
-      'https://cdn.jsdelivr.net/gh/ml5js/ml5-data-and-models@main/models/pitch-detection/crepe/',
-      audioContext,
-      micStream,
-      model => {
-        pitch = model;console.log("🎯 Pitch model loaded!");
-
-        showNextLine();
-        detectPitch();
-      }
-    );
-  }).catch(err => {
-    alert("🎤 Mic access error: " + err.message);
-    console.error(err);
-  });
-}
-
-function showNextLine() {
-  if (currentIndex >= lyrics.length) {
-    document.getElementById("lyric").innerText = "✅ Finished! Great job!";
-    document.getElementById("targetNote").innerText = "";
-    return;
-  }
-
-  const line = lyrics[currentIndex];
-  document.getElementById("lyric").innerText = line.text;
-  document.getElementById("targetNote").innerText = `🎯 Target Note: ${line.note}`;
-}
-
-function detectPitch() {
-  if (!pitch) return;
- console.log("Listening for pitch...");
- pitch.getPitch((err, freq) => {
-    if (freq) {
-      const sungNote = frequencyToNote(freq);
-      const targetNote = lyrics[currentIndex]?.note;
-
-      if (sungNote === targetNote) {
-        document.getElementById("detectedNote").innerHTML = `✅ You sang: <span class="match">${sungNote}</span>`;
-        currentIndex++;
-        setTimeout(() => {
-          showNextLine();
-        }, 1200);
+      if (userAnswer === correctAnswer) {
+        document.getElementById("feedback").innerHTML = "✅ Correct! You're a true JJ fan!";
       } else {
-        document.getElementById("detectedNote").innerHTML = `❌ You sang: <span class="no-match">${sungNote}</span>`;
+        document.getElementById("feedback").innerHTML = "❌ Not quite! Hint: It's a type of colorful light.";
       }
-    } else {
-      document.getElementById("detectedNote").innerText = `🎤 Listening...`;
     }
-    requestAnimationFrame(detectPitch);
-  });
-}
-</script>
+  </script>
 
 </body>
 </html>
-
-
 
