@@ -2,93 +2,42 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>🎤 JJ Lin - Hero Singing Trainer</title>
+  <title>Mic + Pitch Test</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/ml5@0.12.2/dist/ml5.min.js"></script>
   <style>
     body {
-      background-color: #0e0e0e;
+      background-color: #111;
       color: white;
-      font-family: Arial, sans-serif;
+      font-family: sans-serif;
       text-align: center;
-      padding: 40px;
+      padding-top: 60px;
     }
     h1 {
       color: #f0c040;
     }
-    .lyric-line {
-      font-size: 1.6em;
-      margin: 10px 5px;
-      display: inline-block;
-    }
-    .highlight {
-      color: #00ff88;
-      font-weight: bold;
-    }
-    #noteDisplay {
-      margin-top: 30px;
-      font-size: 1.8em;
+    #note {
+      font-size: 2em;
+      margin-top: 20px;
     }
     button {
-      padding: 12px 24px;
-      font-size: 16px;
-      margin-top: 20px;
-      background: #f0c040;
-      color: #000;
-      border: none;
-      cursor: pointer;
-      border-radius: 5px;
+      padding: 10px 20px;
+      font-size: 18px;
+      margin-top: 30px;
     }
   </style>
 </head>
 <body>
 
-<h1>🎶 JJ Lin - Hero Singing Trainer</h1>
-<div id="lyrics"></div>
-<div id="noteDisplay">🎵 Your Note: ...</div>
-<button onclick="start()">Start Singing</button>
+<h1>🎤 Mic Test</h1>
+<p id="note">Your note will appear here...</p>
+<button onclick="start()">Start</button>
 
 <script>
-const melody = [
-  { lyric: "你", note: "F#4" },
-  { lyric: "点", note: "F#4" },
-  { lyric: "亮", note: "F#4" },
-  { lyric: "多", note: "F#4" },
-  { lyric: "少", note: "E4" },
-  { lyric: "霓", note: "D4" },
-  { lyric: "虹", note: "C#4" },
-  { lyric: "圆", note: "C#4" },
-  { lyric: "满", note: "C#4" },
-  { lyric: "了", note: "C#4" },
-  { lyric: "谁", note: "C#4" },
-  { lyric: "的", note: "D4" },
-  { lyric: "梦", note: "E4" },
-  { lyric: "指", note: "F#4" },
-  { lyric: "引", note: "F#4" },
-  { lyric: "我", note: "F#4" },
-  { lyric: "走", note: "F#4" },
-  { lyric: "过", note: "D4" },
-  { lyric: "懵", note: "D4" },
-  { lyric: "懂", note: "C#4" },
-  { lyric: "学", note: "C#4" },
-  { lyric: "你", note: "C#4" },
-  { lyric: "的", note: "C#4" },
-  { lyric: "洒", note: "A3" },
-  { lyric: "脱", note: "D4" }
-];
-
-let pitch;
-let mic;
 let audioContext;
+let mic;
+let pitch;
 let modelLoaded = false;
-let currentIndex = 0;
-
-function displayLyrics() {
-  const container = document.getElementById("lyrics");
-  container.innerHTML = melody.map((item, idx) => {
-    return `<span class="lyric-line ${idx === currentIndex ? 'highlight' : ''}">${item.lyric} (${item.note})</span>`;
-  }).join(' ');
-}
 
 function frequencyToNote(freq) {
   const A4 = 440;
@@ -99,20 +48,7 @@ function frequencyToNote(freq) {
   return `${name}${octave}`;
 }
 
-function noteToMidi(n) {
-  const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-  const note = n.slice(0, -1);
-  const octave = parseInt(n.slice(-1));
-  return 12 * (octave + 1) + notes.indexOf(note);
-}
-
-function isClose(expected, actual) {
-  return Math.abs(noteToMidi(expected) - noteToMidi(actual)) <= 1;
-}
-
 function start() {
-  displayLyrics();
-
   navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
     audioContext = getAudioContext();
     mic = new p5.AudioIn();
@@ -129,27 +65,19 @@ function start() {
       );
     });
   }).catch(err => {
-    alert("Microphone access denied or unavailable.");
+    alert("⚠️ Microphone access error: " + err.message);
     console.error(err);
   });
 }
 
 function detectPitch() {
-  if (!modelLoaded || !pitch) return;
-
-  pitch.getPitch((err, frequency) => {
-    if (frequency) {
-      const note = frequencyToNote(frequency);
-      document.getElementById("noteDisplay").innerText = `🎵 Your Note: ${note}`;
-
-      const expected = melody[currentIndex]?.note;
-      if (isClose(expected, note)) {
-        currentIndex++;
-        if (currentIndex >= melody.length) {
-          document.getElementById("noteDisplay").innerText = "🎉 You completed the section!";
-        }
-        displayLyrics();
-      }
+  if (!pitch || !modelLoaded) return;
+  pitch.getPitch((err, freq) => {
+    if (freq) {
+      const note = frequencyToNote(freq);
+      document.getElementById("note").innerText = `🎵 You sang: ${note}`;
+    } else {
+      document.getElementById("note").innerText = `🎤 Listening...`;
     }
     requestAnimationFrame(detectPitch);
   });
@@ -158,4 +86,3 @@ function detectPitch() {
 
 </body>
 </html>
-
