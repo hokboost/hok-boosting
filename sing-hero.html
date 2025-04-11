@@ -2,26 +2,62 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Mic Pitch Test (Stable)</title>
+  <title>Karaoke Pitch Match - Hero</title>
   <script src="https://cdn.jsdelivr.net/npm/ml5@0.12.2/dist/ml5.min.js"></script>
   <style>
-    body { background: #111; color: white; font-family: sans-serif; text-align: center; padding-top: 60px; }
+    body {
+      background-color: #111;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding-top: 60px;
+    }
     h1 { color: #f0c040; }
-    #note { font-size: 2em; margin-top: 20px; }
-    button { padding: 10px 20px; font-size: 18px; margin-top: 30px; }
+    .lyric-line { font-size: 2em; margin-top: 30px; color: #f0f0f0; }
+    .note-target, .note-detect { font-size: 1.2em; margin: 10px 0; }
+    .match { color: #4caf50; }
+    .no-match { color: #e53935; }
+    button {
+      padding: 12px 24px;
+      font-size: 18px;
+      background: #f0c040;
+      color: #111;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 30px;
+    }
   </style>
 </head>
 <body>
 
-<h1>🎤 Mic Test (Stable Version)</h1>
-<p id="note">Your note will appear here...</p>
-<button id="startBtn">Start</button>
+<h1>🎤 Sing "Hero" – Match the Notes</h1>
+<p class="lyric-line" id="lyric">Press Start to Begin</p>
+<p class="note-target" id="targetNote"></p>
+<p class="note-detect" id="detectedNote">🎵 Waiting...</p>
+<button onclick="start()">Start Singing</button>
 
 <script>
 let pitch;
 let audioContext;
 let micStream;
-let isRunning = false;
+let currentIndex = 0;
+
+const lyrics = [
+  { text: "你", note: "F4" },
+  { text: "点", note: "F4" },
+  { text: "亮", note: "F4" },
+  { text: "多", note: "F4" },
+  { text: "少", note: "E4" },
+  { text: "霓", note: "D4" },
+  { text: "虹", note: "C#4" },
+  { text: "圆", note: "C#4" },
+  { text: "满", note: "C#4" },
+  { text: "了", note: "C#4" },
+  { text: "谁", note: "C#4" },
+  { text: "的", note: "D4" },
+  { text: "梦", note: "E4" },
+];
 
 function frequencyToNote(freq) {
   const A4 = 440;
@@ -32,12 +68,8 @@ function frequencyToNote(freq) {
   return `${name}${octave}`;
 }
 
-document.getElementById("startBtn").addEventListener("click", async () => {
-  if (isRunning) return;
-  isRunning = true;
-
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+function start() {
+  navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
     audioContext = new (window.AudioContext || window.webkitAudioContext)();
     micStream = audioContext.createMediaStreamSource(stream);
 
@@ -47,24 +79,46 @@ document.getElementById("startBtn").addEventListener("click", async () => {
       micStream,
       model => {
         pitch = model;
+        showNextLine();
         detectPitch();
       }
     );
-  } catch (err) {
-    alert("⚠️ Microphone access error: " + err.message);
+  }).catch(err => {
+    alert("🎤 Mic access error: " + err.message);
     console.error(err);
-    isRunning = false;
+  });
+}
+
+function showNextLine() {
+  if (currentIndex >= lyrics.length) {
+    document.getElementById("lyric").innerText = "✅ Finished! Great job!";
+    document.getElementById("targetNote").innerText = "";
+    return;
   }
-});
+
+  const line = lyrics[currentIndex];
+  document.getElementById("lyric").innerText = line.text;
+  document.getElementById("targetNote").innerText = `🎯 Target Note: ${line.note}`;
+}
 
 function detectPitch() {
   if (!pitch) return;
   pitch.getPitch((err, freq) => {
     if (freq) {
-      const note = frequencyToNote(freq);
-      document.getElementById("note").innerText = `🎵 You sang: ${note}`;
+      const sungNote = frequencyToNote(freq);
+      const targetNote = lyrics[currentIndex]?.note;
+
+      if (sungNote === targetNote) {
+        document.getElementById("detectedNote").innerHTML = `✅ You sang: <span class="match">${sungNote}</span>`;
+        currentIndex++;
+        setTimeout(() => {
+          showNextLine();
+        }, 1200);
+      } else {
+        document.getElementById("detectedNote").innerHTML = `❌ You sang: <span class="no-match">${sungNote}</span>`;
+      }
     } else {
-      document.getElementById("note").innerText = `🎤 Listening...`;
+      document.getElementById("detectedNote").innerText = `🎤 Listening...`;
     }
     requestAnimationFrame(detectPitch);
   });
