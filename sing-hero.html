@@ -78,7 +78,8 @@ function start() {
       audioContext,
       micStream,
       model => {
-        pitch = model;
+        pitch = model;console.log("🎯 Pitch model loaded!");
+
         showNextLine();
         detectPitch();
       }
@@ -103,7 +104,8 @@ function showNextLine() {
 
 function detectPitch() {
   if (!pitch) return;
-  pitch.getPitch((err, freq) => {
+ console.log("Listening for pitch...");
+ pitch.getPitch((err, freq) => {
     if (freq) {
       const sungNote = frequencyToNote(freq);
       const targetNote = lyrics[currentIndex]?.note;
