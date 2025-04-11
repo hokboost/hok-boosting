@@ -11,17 +11,9 @@
       font-family: 'Arial', sans-serif;
       padding-top: 60px;
     }
-    h1 {
-      color: #f0c040;
-      font-size: 2em;
-    }
-    p {
-      font-size: 1.1em;
-      margin: 20px 0;
-    }
-    audio {
-      margin-top: 20px;
-    }
+    h1 { color: #f0c040; font-size: 2em; }
+    p { font-size: 1.1em; margin: 20px 0; }
+    audio { margin-top: 20px; }
     input, button {
       margin-top: 20px;
       font-size: 18px;
@@ -30,6 +22,17 @@
     #feedback {
       margin-top: 20px;
       font-size: 1.5em;
+    }
+    .hidden { display: none; }
+    .options button {
+      margin: 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #f0c040;
+      color: #111;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
     }
   </style>
 </head>
@@ -40,10 +43,17 @@
 
 <audio id="player" controls autoplay></audio>
 
-<div id="quiz" style="display: none;">
+<div id="quiz" class="hidden">
   <input type="text" id="answer" placeholder="输入歌名..." />
   <button onclick="checkAnswer()">提交</button>
   <div id="feedback"></div>
+</div>
+
+<div id="options" class="options hidden">
+  <p id="correctAnswer" style="margin-bottom: 10px;"></p>
+  <button onclick="location.reload()">再来一首周杰伦的歌</button>
+  <button onclick="window.location.href='sing.html'">换一个歌手</button>
+  <button onclick="window.location.href='about.html'">返回关于我</button>
 </div>
 
 <script>
@@ -60,29 +70,41 @@
   const audio = document.getElementById("player");
   const quizDiv = document.getElementById("quiz");
   const feedback = document.getElementById("feedback");
+  const options = document.getElementById("options");
   const answerInput = document.getElementById("answer");
+  const correctAnswerDisplay = document.getElementById("correctAnswer");
+
+  let attempts = 0;
 
   audio.src = selected.file;
 
   audio.onended = () => {
-    quizDiv.style.display = "block";
+    quizDiv.classList.remove("hidden");
   };
 
   function checkAnswer() {
     const userAnswer = answerInput.value.trim();
     if (userAnswer === selected.title) {
-      feedback.innerHTML = "✅ 真粉认证！";
+      feedback.innerHTML = `✅ 真粉认证！`;
+      showOptions(true);
     } else {
-      feedback.innerHTML = "❌ 你个假粉！10秒后才能重试...";
-      answerInput.disabled = true;
-      setTimeout(() => {
-        feedback.innerHTML = "";
-        answerInput.disabled = false;
-        answerInput.value = "";
-      }, 10000);
+      attempts++;
+      if (attempts >= 2) {
+        feedback.innerHTML = `❌ 错两次了...`;
+        showOptions(false);
+      } else {
+        feedback.innerHTML = `❌ 你个假粉！再想想...`;
+      }
     }
+  }
+
+  function showOptions(correct) {
+    quizDiv.classList.add("hidden");
+    options.classList.remove("hidden");
+    correctAnswerDisplay.innerHTML = `🎵 正确答案是：<strong>${selected.title}</strong>`;
   }
 </script>
 
 </body>
 </html>
+
