@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <title>🎤 JJ Lin - Hero Singing Trainer</title>
-  <script src="https://cdn.jsdelivr.net/npm/ml5@0.12.2/dist/ml5.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/ml5@0.12.2/dist/ml5.min.js"></script>
   <style>
     body {
       background-color: #0e0e0e;
@@ -17,8 +17,9 @@
       color: #f0c040;
     }
     .lyric-line {
-      font-size: 1.8em;
-      margin: 10px 0;
+      font-size: 1.6em;
+      margin: 10px 5px;
+      display: inline-block;
     }
     .highlight {
       color: #00ff88;
@@ -26,16 +27,17 @@
     }
     #noteDisplay {
       margin-top: 30px;
-      font-size: 2em;
+      font-size: 1.8em;
     }
     button {
-      padding: 10px 20px;
+      padding: 12px 24px;
       font-size: 16px;
       margin-top: 20px;
       background: #f0c040;
       color: #000;
       border: none;
       cursor: pointer;
+      border-radius: 5px;
     }
   </style>
 </head>
@@ -77,43 +79,65 @@ const melody = [
 
 let pitch;
 let mic;
+let audioContext;
+let modelLoaded = false;
 let currentIndex = 0;
 
 function displayLyrics() {
   const container = document.getElementById("lyrics");
   container.innerHTML = melody.map((item, idx) => {
-    const span = `<span class="lyric-line ${idx === currentIndex ? 'highlight' : ''}">${item.lyric} (${item.note})</span>`;
-    return span;
+    return `<span class="lyric-line ${idx === currentIndex ? 'highlight' : ''}">${item.lyric} (${item.note})</span>`;
   }).join(' ');
 }
 
 function frequencyToNote(freq) {
   const A4 = 440;
-  const names = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+  const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
   const n = Math.round(12 * Math.log2(freq / A4)) + 57;
-  const name = names[n % 12];
+  const name = notes[n % 12];
   const octave = Math.floor(n / 12) - 1;
   return `${name}${octave}`;
 }
 
+function noteToMidi(n) {
+  const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+  const note = n.slice(0, -1);
+  const octave = parseInt(n.slice(-1));
+  return 12 * (octave + 1) + notes.indexOf(note);
+}
+
 function isClose(expected, actual) {
-  return expected.replace('♯', '#') === actual;
+  return Math.abs(noteToMidi(expected) - noteToMidi(actual)) <= 1;
 }
 
 function start() {
   displayLyrics();
+
   navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+    audioContext = getAudioContext();
     mic = new p5.AudioIn();
     mic.start(() => {
-      pitch = ml5.pitchDetection('./model/', stream, () => {
-        detectPitch();
-      });
+      ml5.pitchDetection(
+        'https://cdn.jsdelivr.net/gh/ml5js/ml5-data-and-models@main/models/pitch-detection/crepe/',
+        audioContext,
+        mic.stream,
+        model => {
+          pitch = model;
+          modelLoaded = true;
+          detectPitch();
+        }
+      );
     });
+  }).catch(err => {
+    alert("Microphone access denied or unavailable.");
+    console.error(err);
   });
 }
 
 function detectPitch() {
-  pitch.getPitch(function(err, frequency) {
+  if (!modelLoaded || !pitch) return;
+
+  pitch.getPitch((err, frequency) => {
     if (frequency) {
       const note = frequencyToNote(frequency);
       document.getElementById("noteDisplay").innerText = `🎵 Your Note: ${note}`;
@@ -121,12 +145,10 @@ function detectPitch() {
       const expected = melody[currentIndex]?.note;
       if (isClose(expected, note)) {
         currentIndex++;
+        if (currentIndex >= melody.length) {
+          document.getElementById("noteDisplay").innerText = "🎉 You completed the section!";
+        }
         displayLyrics();
-      }
-
-      if (currentIndex >= melody.length) {
-        document.getElementById("noteDisplay").innerText = "🎉 You completed the line!";
-        return;
       }
     }
     requestAnimationFrame(detectPitch);
