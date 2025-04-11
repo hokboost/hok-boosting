@@ -2,49 +2,60 @@
 <html lang="zh">
 <head>
   <meta charset="UTF-8">
-  <title>🎙️ 主播的演唱精选</title>
+  <title>你最喜欢的歌手是谁？</title>
   <style>
     body {
       background-color: #0e0e0e;
-      color: white;
+      color: #fff;
       font-family: Arial, sans-serif;
-      padding: 40px;
       text-align: center;
+      padding-top: 100px;
     }
     h1 {
+      font-size: 28px;
       color: #f0c040;
-      margin-bottom: 20px;
     }
-    p {
-      color: #ccc;
-      font-size: 16px;
-      margin-bottom: 30px;
+    input {
+      padding: 10px;
+      font-size: 18px;
+      width: 300px;
+      border-radius: 8px;
+      border: none;
+      margin-top: 20px;
     }
-    .videos {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 20px;
-    }
-    iframe {
-      border-radius: 10px;
-      width: 100%;
-      max-width: 400px;
-      height: 225px;
-      box-shadow: 0 0 10px #000;
+    button {
+      margin-top: 30px;
+      padding: 10px 24px;
+      font-size: 18px;
+      background-color: #f0c040;
+      color: #111;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
 
-<h1>🎤 主播的演唱精选</h1>
-<p>欢迎进入我的私密歌单 🎶<br>以下是我特别喜欢的一些翻唱作品：</p>
+<h1>你最喜欢的歌手是谁？</h1>
+<input type="text" id="favSinger" placeholder="例如：周杰伦、林俊杰">
+<br>
+<button onclick="goToSong()">进入</button>
 
-<div class="videos">
-  <iframe src="https://www.youtube.com/embed/dGv_3zxQVOY" title="JJ 林俊杰翻唱周杰伦《不能说的秘密》" allowfullscreen></iframe>
-  <iframe src="https://www.youtube.com/embed/ijaBUnsK1C4" title="Honor of Kings Theme" allowfullscreen></iframe>
-  <iframe src="https://www.youtube.com/embed/_-Ci1sXiWvU" title="方大同遗作 - 致敬" allowfullscreen></iframe>
-</div>
+<script>
+function goToSong() {
+  const answer = document.getElementById("favSinger").value.trim();
+
+  if (answer === "周杰伦") {
+    window.location.href = "jaychou-song.html";
+  } else if (answer === "林俊杰") {
+    window.location.href = "jjlin-song.html";
+  } else {
+    alert("暂时没有为这个歌手准备惊喜，换一个吧～");
+  }
+}
+</script>
 
 </body>
 </html>
+
