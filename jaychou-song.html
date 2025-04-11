@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>周杰伦专属献唱</title>
+  <style>
+    body {
+      background-color: #0e0e0e;
+      color: white;
+      text-align: center;
+      font-family: 'Arial', sans-serif;
+      padding-top: 60px;
+    }
+    h1 {
+      color: #f0c040;
+      font-size: 2em;
+    }
+    p {
+      font-size: 1.1em;
+      margin: 20px 0;
+    }
+    audio {
+      margin-top: 20px;
+    }
+    input, button {
+      margin-top: 20px;
+      font-size: 18px;
+      padding: 10px;
+    }
+    #feedback {
+      margin-top: 20px;
+      font-size: 1.5em;
+    }
+  </style>
+</head>
+<body>
+
+<h1>🎤 献给喜爱周杰伦的你</h1>
+<p>听完我唱的歌，猜一猜是哪一首！</p>
+
+<audio id="player" controls autoplay></audio>
+
+<div id="quiz" style="display: none;">
+  <input type="text" id="answer" placeholder="输入歌名..." />
+  <button onclick="checkAnswer()">提交</button>
+  <div id="feedback"></div>
+</div>
+
+<script>
+  const jaySongs = [
+    { file: "assets/audio/jaychou/可爱女人.m4a", title: "可爱女人" },
+    { file: "assets/audio/jaychou/哪里都是你.m4a", title: "哪里都是你" },
+    { file: "assets/audio/jaychou/她的睫毛.m4a", title: "她的睫毛" },
+    { file: "assets/audio/jaychou/星晴.m4a", title: "星晴" },
+    { file: "assets/audio/jaychou/黑色毛衣.m4a", title: "黑色毛衣" }
+  ];
+
+  const randomIndex = Math.floor(Math.random() * jaySongs.length);
+  const selected = jaySongs[randomIndex];
+  const audio = document.getElementById("player");
+  const quizDiv = document.getElementById("quiz");
+  const feedback = document.getElementById("feedback");
+  const answerInput = document.getElementById("answer");
+
+  audio.src = selected.file;
+
+  audio.onended = () => {
+    quizDiv.style.display = "block";
+  };
+
+  function checkAnswer() {
+    const userAnswer = answerInput.value.trim();
+    if (userAnswer === selected.title) {
+      feedback.innerHTML = "✅ 真粉认证！";
+    } else {
+      feedback.innerHTML = "❌ 你个假粉！10秒后才能重试...";
+      answerInput.disabled = true;
+      setTimeout(() => {
+        feedback.innerHTML = "";
+        answerInput.disabled = false;
+        answerInput.value = "";
+      }, 10000);
+    }
+  }
+</script>
+
+</body>
+</html>
