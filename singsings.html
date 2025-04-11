@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>🔒 请输入密码</title>
+  <style>
+    body {
+      background-color: #111;
+      color: white;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding-top: 100px;
+    }
+    input, button {
+      padding: 10px;
+      font-size: 16px;
+      margin: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<h2>🔒 这是一个隐藏页面</h2>
+<p>请输入密码才能继续访问主播的演唱精选：</p>
+
+<input type="password" id="pw" placeholder="密码是？">
+<button onclick="checkPassword()">进入</button>
+<p id="msg"></p>
+
+<script>
+  const correct = "hero"; // You can change this password
+
+  function checkPassword() {
+    const input = document.getElementById("pw").value;
+    const msg = document.getElementById("msg");
+
+    if (input === correct) {
+      // Redirect to unlocked version
+      window.location.href = "singsings-unlocked.html";
+    } else {
+      msg.style.color = "red";
+      msg.innerText = "❌ 密码错误，再试一次～";
+    }
+  }
+</script>
+
+</body>
+</html>
