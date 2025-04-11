@@ -2,66 +2,93 @@
 <html lang="zh">
 <head>
   <meta charset="UTF-8">
-  <title>进入演唱页面前的承诺</title>
+  <title>进入我的独家唱歌页面</title>
   <style>
     body {
-      background-color: #111;
+      background-color: #0e0e0e;
       color: white;
       font-family: Arial, sans-serif;
+      padding: 40px;
       text-align: center;
-      padding-top: 100px;
+    }
+    h1 {
+      color: #f0c040;
+      margin-bottom: 30px;
+    }
+    .question {
+      margin: 30px 0;
+      font-size: 18px;
     }
     label {
       display: block;
-      margin: 20px auto;
-      max-width: 500px;
-      line-height: 1.6;
+      margin: 8px 0;
     }
-    input[type="checkbox"] {
-      transform: scale(1.3);
-      margin-right: 10px;
-    }
-    button {
+    .submit {
+      margin-top: 40px;
       padding: 12px 24px;
-      font-size: 18px;
-      background: #f0c040;
+      background-color: #f0c040;
       color: #111;
       border: none;
-      border-radius: 8px;
+      border-radius: 6px;
+      font-size: 18px;
       cursor: pointer;
-      margin-top: 30px;
     }
-    #msg {
-      color: red;
-      margin-top: 20px;
+    .submit:hover {
+      background-color: #ffdd66;
     }
   </style>
 </head>
 <body>
 
-  <h2>🎤 进入演唱页面前请确认以下承诺</h2>
+  <h1>🎤 进入我的独家唱歌页面</h1>
 
-  <label>
-    <input type="checkbox" id="agree">
-    我保证我不会任何转发主播唱歌的内容。
-  </label>
+  <div class="question">
+    <p>1. 主播唱歌好听吗？</p>
+    <label><input type="radio" name="q1" value="A"> A. 好听</label>
+    <label><input type="radio" name="q1" value="B"> B. 不好听</label>
+  </div>
 
-  <button onclick="checkAgreement()">进入</button>
+  <div class="question">
+    <p>2. 你喜欢听主播唱歌吗？</p>
+    <label><input type="radio" name="q2" value="A"> A. 喜欢</label>
+    <label><input type="radio" name="q2" value="B"> B. 不喜欢</label>
+  </div>
 
-  <p id="msg"></p>
+  <div class="question">
+    <label>
+      <input type="checkbox" id="agree">
+      我保证我不会任何转发主播唱歌的内容
+    </label>
+  </div>
+
+  <button class="submit" onclick="checkAnswers()">进入</button>
 
   <script>
-    function checkAgreement() {
-      const agreed = document.getElementById("agree").checked;
-      const msg = document.getElementById("msg");
+    function checkAnswers() {
+      const q1 = document.querySelector('input[name="q1"]:checked');
+      const q2 = document.querySelector('input[name="q2"]:checked');
+      const agreed = document.getElementById('agree').checked;
 
-      if (agreed) {
-        window.location.href = "singsings-unlocked.html";
+      if (!q1 || !q2) {
+        alert("请回答两个问题！");
+        return;
+      }
+
+      if (q1.value === "A" && q2.value === "A" && agreed) {
+        alert("欢迎来到我的独家唱歌页面！");
+
+        const audio = new Audio("assets/audio/intro.m4a");
+        audio.play();
+
+        setTimeout(() => {
+          window.location.href = "my-singsings.html"; // make sure this file exists
+        }, 3500);
       } else {
-        msg.innerText = "⚠️ 请勾选承诺才能进入页面。";
+        alert("请先回答正确并同意协议才能进入。");
       }
     }
   </script>
 
 </body>
 </html>
+
