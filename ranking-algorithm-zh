@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>排位匹配机制解析 - KingBoost Pro</title>
+  <style>
+    body { background: #0e0e0e; color: #fff; font-family: Arial; margin: 0; padding: 0; }
+    header { background: #1a1a1a; padding: 20px 0; text-align: center; }
+    header h1 { color: #f0c040; margin: 0; }
+    nav a { color: #f0c040; margin: 0 15px; text-decoration: none; font-weight: bold; font-size: 16px; }
+    .container { padding: 20px; max-width: 900px; margin: auto; line-height: 1.7; }
+    h2, h3 { color: #f0c040; }
+    img { max-width: 100%; border-radius: 10px; box-shadow: 0 0 10px #000; margin-top: 20px; }
+    a { color: #f0c040; text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>KingBoost Pro</h1>
+  <nav>
+    <a href="index-zh.html">首页</a>
+    <a href="services-zh.html">代练服务</a>
+    <a href="about-zh.html">关于我</a>
+    <a href="reviews-zh.html">客户评价</a>
+    <a href="daily-update-zh.html">日常更新</a>
+    <a href="contact-zh.html">联系方式</a>
+    <a href="faq-zh.html">常见问题</a>
+    <a href="ranking-algorithm.html" style="float: right;">English</a>
+  </nav>
+</header>
+
+<div class="container">
+  <h2>📊 王者荣耀排位匹配机制研究</h2>
+
+  <p>很多玩家认为输赢纯靠运气，其实王者荣耀的匹配系统背后有一套极其复杂的规则。以下是我多年高胜率代练中，总结出的一些匹配机制核心规律和破解方式。</p>
+
+  <h3>🎯 核心观察</h3>
+  <ul>
+    <li>匹配对手并非仅看段位，而是参考<strong>隐藏评分</strong>与账号胜率曲线。</li>
+    <li>系统会定期安排“平衡局”，故意安排实力不对等的队友。</li>
+    <li>新注册账号（尤其是外国区）享有“保护期”，更容易连胜。</li>
+    <li>长期评分过高的账号容易被匹配进<strong>削分局</strong>。</li>
+  </ul>
+
+  <h3>🧠 破解思路</h3>
+  <ul>
+    <li>使用低评分“老号”与客户组排，压低整体匹配权重</li>
+    <li>避免连胜超过5局，可故意适当控制评分保持在安全区</li>
+    <li>避开高峰时段，凌晨2点后匹配质量明显上升</li>
+  </ul>
+
+  <img src="assets/images/s10.2.jpg" alt="战绩截图">
+
+  <h3>📌 我的实战验证</h3>
+  <p>通过这些策略，我在 S9 达成 139 星，S10 以 93% 胜率冲上 100 星。多次实战证明，这些机制确实能帮助客户更快上分。</p>
+
+  <p>如果你对匹配机制还有更多好奇，或者想找我定制陪玩方案，可以 <a href="contact-zh.html">点此联系我</a>。</p>
+</div>
+
+</body>
+</html>
