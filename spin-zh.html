@@ -1,32 +1,66 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-  <meta charset="UTF-8">
-  <title>幸运转盘</title>
+  <meta charset="UTF-8" />
+  <title>幸运转盘 - KingBoost Pro</title>
   <style>
-    body { text-align: center; padding-top: 50px; font-family: sans-serif; background: #f5f5f5; }
-    canvas { border: 2px solid #ccc; border-radius: 10px; }
-    input, button { font-size: 16px; margin-top: 20px; padding: 8px 16px; }
-    #result { font-size: 18px; color: #d35400; margin-top: 20px; }
+    body {
+      background: #ffffff;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding-top: 50px;
+    }
+    canvas {
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+    #pointer {
+      width: 0;
+      height: 0;
+      border-left: 20px solid transparent;
+      border-right: 20px solid transparent;
+      border-bottom: 30px solid black;
+      position: absolute;
+      top: 110px;
+      left: 50%;
+      margin-left: -20px;
+      z-index: 10;
+    }
+    input, button {
+      margin-top: 20px;
+      font-size: 16px;
+      padding: 8px;
+    }
+    #result {
+      margin-top: 20px;
+      font-size: 18px;
+      color: #d35400;
+    }
   </style>
 </head>
 <body>
-  <h1>🎯 幸运转盘</h1>
-  <canvas id="wheelCanvas" width="300" height="300"></canvas><br>
-  <input type="password" id="password" placeholder="输入抽奖密码">
+  <h1>🎁 幸运转盘 - 抽取专属奖励！</h1>
+
+  <div id="pointer"></div>
+  <canvas id="wheelCanvas" width="300" height="300"></canvas>
+
+  <br />
+  <input type="password" id="password" placeholder="请输入抽奖密码" />
   <button onclick="spin()">开始抽奖</button>
+
   <p id="result"></p>
 
   <script>
-    const prizes = ["-5元优惠", "免费一局", "再来一次", "9折优惠", "当天免费", "谢谢参与"];
-    const colors = ["#f44336", "#4caf50", "#2196f3", "#ff9800", "#9c27b0", "#607d8b"];
     const canvas = document.getElementById("wheelCanvas");
     const ctx = canvas.getContext("2d");
-
-    let angle = 0;
-    const arc = 2 * Math.PI / prizes.length;
+    const prizes = ["-5元优惠", "免费一局", "再来一次", "9折优惠", "当天免费", "谢谢参与"];
+    const colors = ["#f44336", "#4caf50", "#2196f3", "#ff9800", "#9c27b0", "#607d8b"];
+    const segAngle = 360 / prizes.length;
+    let currentAngle = 0;
 
     function drawWheel() {
+      ctx.clearRect(0, 0, 300, 300);
+      const arc = 2 * Math.PI / prizes.length;
       for (let i = 0; i < prizes.length; i++) {
         const start = i * arc;
         ctx.beginPath();
@@ -49,7 +83,6 @@
 
     function spin() {
       const password = document.getElementById("password").value;
-
       fetch("https://hokboost.ngrok.io/spin", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -62,35 +95,45 @@
           return;
         }
 
-        // 后端返回的角度
-        const finalAngle = 360 * 5 + (360 - data.angle); // 多转几圈再减去落点角度
-        const duration = 4000;
-        const start = performance.now();
+        const index = prizes.indexOf(data.prize);
+        let baseRotation = 360 * 5;
+        let targetAngle = 360 - index * segAngle - segAngle / 2;
 
-        function animate(now) {
-          const t = Math.min((now - start) / duration, 1);
-          const eased = 1 - Math.pow(1 - t, 3); // easeOutCubic
-          angle = finalAngle * eased;
-          ctx.clearRect(0, 0, 300, 300);
+        // 如果没中“当天免费”，让指针略过它（假装“差一点”）
+        if (data.prize !== "当天免费") {
+          const jackpotIndex = prizes.indexOf("当天免费");
+          const nearMissAngle = 360 - jackpotIndex * segAngle - segAngle / 2 + (Math.random() < 0.5 ? -10 : 10);
+          targetAngle = nearMissAngle + 360 * 5;
+        } else {
+          targetAngle += 360 * 5;
+        }
+
+        const start = performance.now();
+        const duration = 3000;
+
+        function animate(time) {
+          const t = Math.min((time - start) / duration, 1);
+          const ease = 1 - Math.pow(1 - t, 4);
+          currentAngle = baseRotation + (targetAngle - baseRotation) * ease;
           ctx.save();
           ctx.translate(150, 150);
-          ctx.rotate(angle * Math.PI / 180);
+          ctx.rotate(currentAngle * Math.PI / 180);
           ctx.translate(-150, -150);
           drawWheel();
           ctx.restore();
 
           if (t < 1) requestAnimationFrame(animate);
-          else document.getElementById("result").textContent = `🎉 恭喜你抽中了：${data.prize}`;
+          else {
+            document.getElementById("result").textContent = `🎉 恭喜你抽中了：${data.prize}！请截图联系我领取。`;
+          }
         }
 
         requestAnimationFrame(animate);
       })
-      .catch(() => {
-        document.getElementById("result").textContent = "❌ 请求失败，请稍后再试";
+      .catch(err => {
+        document.getElementById("result").textContent = "请求失败：" + err;
       });
     }
   </script>
 </body>
 </html>
-
-
