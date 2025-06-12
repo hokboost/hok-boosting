@@ -30,38 +30,59 @@
 <body>
   <h1>🎁 幸运转盘 - 抽取专属奖励！</h1>
   <canvas id="wheelCanvas" width="300" height="300"></canvas><br>
-  <button onclick="spinWheel()">点击抽奖</button>
+  <div>
+  <input type="text" id="username" placeholder="用户名">
+  <input type="password" id="password" placeholder="密码">
+  <button onclick="spin()">开始抽奖</button>
+</div>
+
   <p id="result"></p>
 
   <script>
-    const canvas = document.getElementById("wheelCanvas");
-    const ctx = canvas.getContext("2d");
-    const prizes = ["$5 优惠", "赠送一局", "额外教学", "再来一次", "九折优惠", "神秘奖励"];
-    const colors = ["#f44336", "#4caf50", "#2196f3", "#ff9800", "#9c27b0", "#607d8b"];
-    let angle = 0;
+  const canvas = document.getElementById("wheelCanvas");
+  const ctx = canvas.getContext("2d");
+  const prizes = ["-5元优惠", "免费一局", "再来一次", "9折优惠", "当天免费", "谢谢参与"];
+  const colors = ["#f44336", "#4caf50", "#2196f3", "#ff9800", "#9c27b0", "#607d8b"];
+  let angle = 0;
 
-    function drawWheel() {
-      const arc = (2 * Math.PI) / prizes.length;
-      for (let i = 0; i < prizes.length; i++) {
-        const start = i * arc;
-        ctx.beginPath();
-        ctx.moveTo(150, 150);
-        ctx.fillStyle = colors[i];
-        ctx.arc(150, 150, 140, start, start + arc);
-        ctx.fill();
-        ctx.save();
-        ctx.translate(150, 150);
-        ctx.rotate(start + arc / 2);
-        ctx.fillStyle = "#fff";
-        ctx.font = "14px Arial";
-        ctx.textAlign = "right";
-        ctx.fillText(prizes[i], 130, 5);
-        ctx.restore();
-      }
+  function drawWheel() {
+    const arc = (2 * Math.PI) / prizes.length;
+    for (let i = 0; i < prizes.length; i++) {
+      const start = i * arc;
+      ctx.beginPath();
+      ctx.moveTo(150, 150);
+      ctx.fillStyle = colors[i];
+      ctx.arc(150, 150, 140, start, start + arc);
+      ctx.fill();
+      ctx.save();
+      ctx.translate(150, 150);
+      ctx.rotate(start + arc / 2);
+      ctx.fillStyle = "#fff";
+      ctx.font = "14px Arial";
+      ctx.textAlign = "right";
+      ctx.fillText(prizes[i], 130, 5);
+      ctx.restore();
     }
-    drawWheel();
+  }
+  drawWheel();
 
-    function spinWheel() {
+  function spin() {
+    const username = document.getElementById("username").value;
+    const password = document.getElementById("password").value;
+
+    fetch("http://localhost:3000/spin", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (!data.success) {
+        document.getElementById("result").textContent = "❌ " + data.message;
+        return;
+      }
+
+      // 触发动画，并在动画结束后显示奖项
       const randomAngle = Math.random() * 360 + 720;
       const duration = 3000;
       const start = performance.now();
@@ -80,14 +101,14 @@
 
         if (t < 1) requestAnimationFrame(animate);
         else {
-          const finalAngle = angle % 360;
-          const index = Math.floor(prizes.length - (finalAngle / 360) * prizes.length) % prizes.length;
-          document.getElementById("result").textContent = `🎉 恭喜你抽中了：${prizes[index]}！请截图联系我领取。`;
+          document.getElementById("result").textContent = `🎉 恭喜你抽中了：${data.prize}！请截图联系我领取。`;
         }
       }
 
       requestAnimationFrame(animate);
-    }
-  </script>
-</body>
-</html>
+    })
+    .catch(err => {
+      document.getElementById("result").textContent = "请求失败：" + err;
+    });
+  }
+</script>
