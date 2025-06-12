@@ -68,7 +68,7 @@
     function spin() {
       const password = document.getElementById("password").value;
 
-      fetch("https://95b7-99-241-118-87.ngrok-free.app/spin", {
+      fetch("https://hokboost.ngrok.io/spin", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ key: password }) 
