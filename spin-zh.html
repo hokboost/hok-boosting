@@ -15,14 +15,15 @@
       border-radius: 50%;
     }
     #pointer {
-      width: 0; height: 0;
-      border-left: 15px solid transparent;
-      border-right: 15px solid transparent;
-      border-bottom: 30px solid black;
+      width: 0;
+      height: 0;
+      border-left: 20px solid transparent;
+      border-right: 20px solid transparent;
+      border-top: 40px solid black;
       position: absolute;
-      top: 90px;
+      top: -20px;
       left: 50%;
-      margin-left: -15px;
+      transform: translateX(-50%);
       z-index: 10;
     }
     #container {
@@ -57,8 +58,8 @@
   <p id="result"></p>
 
   <script>
-    const prizes = ["-5元优惠", "免费一局", "再来一次", "9折优惠", "当天免费", "谢谢参与"];
-    const colors = ["#f44336", "#4caf50", "#2196f3", "#ff9800", "#9c27b0", "#607d8b"];
+    const prizes = ["谢谢参与", "-5元优惠", "免费一局", "再来一次", "9折优惠", "当天免费"];
+    const colors = ["#607d8b", "#f44336", "#4caf50", "#2196f3", "#ff9800", "#9c27b0"];
     const canvas = document.getElementById("wheel");
     const ctx = canvas.getContext("2d");
     let angle = 0;
@@ -104,17 +105,7 @@
           return;
         }
 
-        const index = prizes.indexOf(data.prize);
-        if (index === -1) {
-          document.getElementById("result").textContent = "❌ 无效奖项，请联系管理员。";
-          return;
-        }
-
-        const arc = 360 / prizes.length;
-        const base = 360 - index * arc;
-        const offset = (data.prize === "当天免费") ? 0 : Math.random() * (arc * 0.8) - arc * 0.4;
-        const finalAngle = 360 * 5 + base + offset;
-
+        const finalAngle = 360 * 5 + (360 - (data.angle % 360)); // 保证正上方指向中奖
         const duration = 4000;
         const start = performance.now();
 
@@ -146,4 +137,3 @@
   </script>
 </body>
 </html>
-
