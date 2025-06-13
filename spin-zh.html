@@ -5,7 +5,6 @@
   <title>幸运转盘 - KingBoost Pro</title>
   <style>
     body {
-      background: #fff;
       font-family: Arial, sans-serif;
       text-align: center;
       padding-top: 40px;
@@ -14,24 +13,21 @@
       position: relative;
       width: 300px;
       height: 300px;
-      margin: 0 auto;
+      margin: auto;
     }
     canvas {
-      position: absolute;
-      top: 0;
-      left: 0;
       border-radius: 50%;
     }
     #pointer {
+      position: absolute;
+      top: -20px;
+      left: 50%;
+      margin-left: -15px;
       width: 0;
       height: 0;
       border-left: 15px solid transparent;
       border-right: 15px solid transparent;
-      border-top: 30px solid black;
-      position: absolute;
-      top: -30px;
-      left: 50%;
-      margin-left: -15px;
+      border-bottom: 30px solid black;
       z-index: 10;
     }
     input, button {
@@ -54,7 +50,7 @@
   </div>
 
   <div>
-    <input type="password" id="password" placeholder="输入专属密码">
+    <input type="password" id="password" placeholder="请输入抽奖密码">
     <button onclick="spin()">开始抽奖</button>
   </div>
   <p id="result"></p>
@@ -64,20 +60,21 @@
     const colors = ["#f44336", "#4caf50", "#2196f3", "#ff9800", "#9c27b0", "#607d8b"];
     const canvas = document.getElementById("wheel");
     const ctx = canvas.getContext("2d");
-    let currentAngle = 0;
+    let currentRotation = 0;
 
     function drawWheel() {
       const arc = 2 * Math.PI / prizes.length;
       for (let i = 0; i < prizes.length; i++) {
-        const start = i * arc;
+        const startAngle = i * arc;
+        const endAngle = startAngle + arc;
         ctx.beginPath();
         ctx.moveTo(150, 150);
         ctx.fillStyle = colors[i];
-        ctx.arc(150, 150, 140, start, start + arc);
+        ctx.arc(150, 150, 140, startAngle, endAngle);
         ctx.fill();
         ctx.save();
         ctx.translate(150, 150);
-        ctx.rotate(start + arc / 2);
+        ctx.rotate(startAngle + arc / 2);
         ctx.fillStyle = "#fff";
         ctx.font = "14px Arial";
         ctx.textAlign = "right";
@@ -89,9 +86,9 @@
     drawWheel();
 
     function spin() {
-      const key = document.getElementById("password").value;
+      const key = document.getElementById("password").value.trim();
       if (!key) {
-        document.getElementById("result").textContent = "❌ 请输入密码。";
+        document.getElementById("result").textContent = "❌ 请输入密码";
         return;
       }
 
@@ -107,27 +104,26 @@
           return;
         }
 
-        const rotation = 360 * 5 + (360 - data.angle); // 让中奖区域旋转到最上方
+        const fullRotation = 360 * 5;
+        const targetRotation = fullRotation + (360 - data.angle % 360); // 指针在顶部
         const duration = 4000;
         const start = performance.now();
 
         function animate(now) {
           const t = Math.min((now - start) / duration, 1);
-          const ease = 1 - Math.pow(1 - t, 3);
-          const angle = currentAngle + rotation * ease;
+          const ease = 1 - Math.pow(1 - t, 4);
+          currentRotation = targetRotation * ease;
 
           ctx.clearRect(0, 0, 300, 300);
           ctx.save();
           ctx.translate(150, 150);
-          ctx.rotate((angle % 360) * Math.PI / 180);
+          ctx.rotate(currentRotation * Math.PI / 180);
           ctx.translate(-150, -150);
           drawWheel();
           ctx.restore();
 
-          if (t < 1) {
-            requestAnimationFrame(animate);
-          } else {
-            currentAngle = (currentAngle + rotation) % 360;
+          if (t < 1) requestAnimationFrame(animate);
+          else {
             document.getElementById("result").textContent =
               `🎉 恭喜你抽中了：${data.prize}！请截图联系我领取。`;
           }
@@ -136,9 +132,10 @@
         requestAnimationFrame(animate);
       })
       .catch(() => {
-        document.getElementById("result").textContent = "❌ 请求失败，请检查网络连接。";
+        document.getElementById("result").textContent = "❌ 请求失败，请检查网络。";
       });
     }
   </script>
 </body>
 </html>
+
