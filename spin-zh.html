@@ -63,7 +63,7 @@
     let angle = 0;
 
     function drawWheel() {
-      const arc = 2 * Math.PI / prizes.length;
+     const start = i * arc - Math.PI / 2; // 从上方开始绘制
       for (let i = 0; i < prizes.length; i++) {
         const start = i * arc;
         ctx.beginPath();
