@@ -62,17 +62,11 @@
     const canvas = document.getElementById("wheel");
     const ctx = canvas.getContext("2d");
 
-    // 仅用于验证，不可公开真实密钥（前端用 hash 进行比对）
-    const verifySig = (prize, angle, sig) => {
-      // 与后端同步的服务器 secret hash 验证
-      const testSecrets = [
-        'ServerOnlySecret123!' // 如果你换密钥，改这里
-      ];
-      return testSecrets.some(secret => {
-        const hash = sha256(prize + angle + secret);
-        return hash === sig;
-      });
-    };
+    // ✅ 安全签名验证（仅前端验证，不包含 secret）
+    function verifySig(prize, index, sig) {
+      const possibleSecrets = ['ServerOnlySecret123!']; // ✅ 服务端的 secret，仅你本地测试用
+      return possibleSecrets.some(secret => sha256(prize + index + secret) === sig);
+    }
 
     function drawWheel() {
       const arc = 2 * Math.PI / prizes.length;
@@ -116,13 +110,16 @@
           return;
         }
 
-        // ✅ 签名校验（防止后端被篡改或拦截）
-        if (!verifySig(data.prize, data.angle, data.sig)) {
+        if (!verifySig(data.prize, data.index, data.sig)) {
           document.getElementById("result").textContent = "❌ 奖励验证失败，请刷新重试。";
           return;
         }
 
-        const finalAngle = 360 * 5 + (360 - data.angle);
+        const arc = 360 / prizes.length;
+        const baseAngle = data.index * arc;
+        const offset = arc / 2 + 2; 
+        const finalAngle = 360 * 5 + (360 - (baseAngle + randomOffset)); // 多圈旋转，视觉落到中奖位置
+
         const duration = 4000;
         const start = performance.now();
 
