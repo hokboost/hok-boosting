@@ -91,7 +91,8 @@
       }
 
       const timestamp = Math.floor(Date.now() / 1000);
-      const nonce = crypto.randomUUID(); // browser-native UUID
+      const nonce = crypto.randomUUID();
+
       fetch("https://hokboost.ngrok.io/spin", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -104,17 +105,8 @@
           return;
         }
 
-        const prize = data.prize;
-        const index = prizes.indexOf(prize);
-        if (index === -1) {
-          document.getElementById("result").textContent = "❌ 奖项无效，请联系管理员。";
-          return;
-        }
-
-        const arc = 360 / prizes.length;
-        const baseAngle = index * arc;
-        const offset = arc / 2 + 2;
-        const finalAngle = 360 * 5 + (270 - (baseAngle + offset));
+        const angleFromServer = data.angle;
+        const finalAngle = 360 * 5 + (270 - angleFromServer); // rotate 5 full spins, land at desired angle
 
         const duration = 4000;
         const start = performance.now();
@@ -134,7 +126,7 @@
           if (t < 1) requestAnimationFrame(animate);
           else {
             document.getElementById("result").textContent =
-              `🎉 恭喜你抽中了：${prize}！请截图联系我领取。`;
+              `🎉 恭喜你抽中了：${data.prize}！请截图联系我领取。`;
           }
         }
 
