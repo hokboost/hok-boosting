@@ -2,93 +2,65 @@
 <html lang="zh">
 <head>
   <meta charset="UTF-8">
-  <title>幸运转盘 - KingBoost Pro</title>
+  <title>幸运转盘</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      background: #fff;
-      padding-top: 50px;
-    }
-    #container {
-      position: relative;
+    #wheel {
       width: 300px;
-      margin: 0 auto;
+      height: 300px;
+      border-radius: 50%;
+      border: 8px solid #333;
+      position: relative;
+      margin: 50px auto;
+      background: conic-gradient(
+        #ccc 0deg 60deg,
+        #f99 60deg 120deg,
+        #9f9 120deg 180deg,
+        #ff9 180deg 240deg,
+        #99f 240deg 300deg,
+        #f66 300deg 360deg
+      );
+      transition: transform 4s cubic-bezier(0.33, 1, 0.68, 1);
     }
+
     #pointer {
-      position: absolute;
-      top: -25px;
-      left: 50%;
-      transform: translateX(-50%);
       width: 0;
       height: 0;
       border-left: 15px solid transparent;
       border-right: 15px solid transparent;
-      border-bottom: 25px solid black;
+      border-bottom: 30px solid black;
+      position: absolute;
+      top: -30px;
+      left: calc(50% - 15px);
       z-index: 10;
     }
-    canvas {
-      border-radius: 50%;
-      border: 5px solid #ddd;
-      background: #fff;
+
+    #spin-btn {
+      display: block;
+      margin: 20px auto;
     }
-    input, button {
-      margin-top: 20px;
-      padding: 10px;
-      font-size: 16px;
-    }
+
     #result {
-      margin-top: 20px;
-      font-size: 18px;
-      color: #d35400;
+      text-align: center;
+      font-size: 1.5em;
+      margin-top: 10px;
     }
   </style>
 </head>
 <body>
-  <h1>🎁 幸运转盘 - 抽取专属奖励！</h1>
-  <div id="container">
+  <div style="position: relative; width: 300px; margin: auto;">
     <div id="pointer"></div>
-    <canvas id="wheel" width="300" height="300"></canvas>
+    <div id="wheel"></div>
   </div>
-  <input type="password" id="password" placeholder="请输入抽奖密码">
-  <button onclick="spin()">开始抽奖</button>
-  <p id="result"></p>
+  <input id="password" placeholder="输入密码" style="display:block; margin:10px auto;">
+  <button id="spin-btn">点击抽奖</button>
+  <div id="result"></div>
 
   <script>
-    const prizes = ["-5元优惠", "免费一局", "再来一次", "9折优惠", "当天免费", "谢谢参与"];
-    const colors = ["#f44336", "#4caf50", "#2196f3", "#ff9800", "#9c27b0", "#607d8b"];
-    const canvas = document.getElementById("wheel");
-    const ctx = canvas.getContext("2d");
-    let currentRotation = 0;
+    const wheel = document.getElementById("wheel");
+    const resultEl = document.getElementById("result");
 
-    function drawWheel() {
-      const arc = 2 * Math.PI / prizes.length;
-      for (let i = 0; i < prizes.length; i++) {
-        const start = i * arc;
-        ctx.beginPath();
-        ctx.moveTo(150, 150);
-        ctx.fillStyle = colors[i];
-        ctx.arc(150, 150, 140, start, start + arc);
-        ctx.fill();
-
-        ctx.save();
-        ctx.translate(150, 150);
-        ctx.rotate(start + arc / 2);
-        ctx.fillStyle = "#fff";
-        ctx.font = "14px Arial";
-        ctx.textAlign = "right";
-        ctx.fillText(prizes[i], 130, 5);
-        ctx.restore();
-      }
-    }
-
-    function spin() {
-      const password = document.getElementById("password").value.trim();
-      if (!password) {
-        document.getElementById("result").textContent = "❌ 请输入密码。";
-        return;
-      }
-
+    document.getElementById("spin-btn").addEventListener("click", () => {
+      const password = document.getElementById("password").value;
       fetch("https://hokboost.ngrok.io/spin", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -97,52 +69,25 @@
       .then(res => res.json())
       .then(data => {
         if (!data.success) {
-          document.getElementById("result").textContent = "❌ " + data.message;
+          resultEl.textContent = "❌ " + data.message;
           return;
         }
 
-        const index = prizes.indexOf(data.prize);
-        if (index === -1) {
-          document.getElementById("result").textContent = "❌ 奖项错误。";
-          return;
-        }
+        const base = 360 * 5;
+        const targetRotation = base + (360 - data.angle);
+        wheel.style.transition = 'none';
+        wheel.style.transform = `rotate(0deg)`;
 
-        const arc = 2 * Math.PI / prizes.length;
-        const targetAngle = (prizes.length - index) * arc - arc / 2;
-        const rotations = 6;
-        const totalRotation = rotations * 2 * Math.PI + targetAngle - (currentRotation % (2 * Math.PI));
-        const duration = 3000;
-        const start = performance.now();
+        setTimeout(() => {
+          wheel.style.transition = 'transform 4s cubic-bezier(0.33, 1, 0.68, 1)';
+          wheel.style.transform = `rotate(${targetRotation}deg)`;
+        }, 50);
 
-        function animate(now) {
-          const t = Math.min((now - start) / duration, 1);
-          const ease = 1 - Math.pow(1 - t, 3);
-          const angle = currentRotation + totalRotation * ease;
-
-          ctx.clearRect(0, 0, 300, 300);
-          ctx.save();
-          ctx.translate(150, 150);
-          ctx.rotate(angle);
-          ctx.translate(-150, -150);
-          drawWheel();
-          ctx.restore();
-
-          if (t < 1) {
-            requestAnimationFrame(animate);
-          } else {
-            currentRotation += totalRotation;
-            document.getElementById("result").textContent = `🎉 恭喜你抽中了：${data.prize}！请截图联系我领取。`;
-          }
-        }
-
-        requestAnimationFrame(animate);
-      })
-      .catch(err => {
-        document.getElementById("result").textContent = "请求失败：" + err;
+        setTimeout(() => {
+          resultEl.textContent = `🎉 恭喜获得：${data.prize}`;
+        }, 4200);
       });
-    }
-
-    drawWheel();
+    });
   </script>
 </body>
 </html>
