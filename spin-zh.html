@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8" />
   <title>幸运转盘 - KingBoost Pro</title>
-  <script src="https://cdn.jsdelivr.net/npm/js-sha256@0.9.0/src/sha256.min.js"></script>
   <style>
     body {
       background: #ffffff;
@@ -61,7 +60,6 @@
     const colors = ["#f44336", "#4caf50", "#2196f3", "#ff9800", "#9c27b0", "#607d8b"];
     const canvas = document.getElementById("wheel");
     const ctx = canvas.getContext("2d");
-    const serverSecret = 'ServerOnlySecret123!'; // must match backend
 
     function drawWheel() {
       const arc = 2 * Math.PI / prizes.length;
@@ -105,14 +103,6 @@
           return;
         }
 
-        // ✅ Verify backend signature
-        const checkSig = sha256(data.prize + data.angle + serverSecret);
-        if (checkSig !== data.sig) {
-          document.getElementById("result").textContent = "❌ 奖励验证失败，请刷新重试。";
-          return;
-        }
-
-        // ✅ If valid, animate
         const finalAngle = 360 * 5 + (360 - data.angle);
         const duration = 4000;
         const start = performance.now();
@@ -145,3 +135,4 @@
   </script>
 </body>
 </html>
+
