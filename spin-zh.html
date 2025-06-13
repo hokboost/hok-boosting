@@ -60,6 +60,10 @@
     const colors = ["#f44336", "#4caf50", "#2196f3", "#ff9800", "#9c27b0", "#607d8b"];
     const canvas = document.getElementById("wheel");
     const ctx = canvas.getContext("2d");
+    let latestProof = null;
+    let latestTimestamp = null;
+    let latestAngle = null;
+    let latestUserId = null;
 
     function drawWheel() {
       const arc = 2 * Math.PI / prizes.length;
@@ -105,9 +109,7 @@
           return;
         }
 
-        const angleFromServer = data.angle;
-        const finalAngle = 360 * 5 + (270 - angleFromServer); // rotate 5 full spins, land at desired angle
-
+        const finalAngle = 360 * 5 + (270 - data.angle); // animate to target
         const duration = 4000;
         const start = performance.now();
 
@@ -125,8 +127,18 @@
 
           if (t < 1) requestAnimationFrame(animate);
           else {
-            document.getElementById("result").textContent =
-              `🎉 恭喜你抽中了：${data.prize}！请截图联系我领取。`;
+            document.getElementById("result").textContent = "✅ 抽奖完成！点击验证领取奖励。";
+            latestProof = data.proof;
+            latestTimestamp = timestamp;
+            latestAngle = data.angle;
+
+            // You should store userId locally during login phase; for demo we'll ask now
+            latestUserId = prompt("请输入用户 ID 用于验证奖品：");
+
+            const verifyBtn = document.createElement("button");
+            verifyBtn.textContent = "验证奖品";
+            verifyBtn.onclick = verifyPrize;
+            document.body.appendChild(verifyBtn);
           }
         }
 
@@ -134,6 +146,29 @@
       })
       .catch(() => {
         document.getElementById("result").textContent = "❌ 请求失败，请检查网络连接。";
+      });
+    }
+
+    function verifyPrize() {
+      if (!latestProof || !latestUserId || !latestAngle || !latestTimestamp) return;
+
+      fetch("https://hokboost.ngrok.io/verify-prize", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          proof: latestProof,
+          angle: latestAngle,
+          timestamp: latestTimestamp,
+          userId: latestUserId
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (!data.success) {
+          document.getElementById("result").textContent = "❌ 奖品验证失败：" + data.message;
+        } else {
+          document.getElementById("result").textContent = `🎉 恭喜你获得奖品：${data.prize}`;
+        }
       });
     }
   </script>
