@@ -103,7 +103,8 @@
             return;
           }
 
-          const finalAngle = 360 * 5 + (360 - data.angle); // 指针固定在上方，需调整方向
+          const finalAngle = data.angle; // 不再做 (360 - angle) 了
+          ctx.rotate((angle - 90) * Math.PI / 180);
           const duration = 4000;
           const start = performance.now();
 
