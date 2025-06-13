@@ -1,88 +1,151 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh">
 <head>
   <meta charset="UTF-8">
-  <title>抽奖转盘</title>
+  <title>幸运转盘 - KingBoost Pro</title>
   <style>
-    body { text-align: center; background: #222; color: white; font-family: sans-serif; }
-    #wheel {
-      width: 300px; height: 300px; border-radius: 50%;
-      border: 8px solid white; position: relative;
-      transition: transform 5s cubic-bezier(0.25, 0.1, 0.25, 1);
+    body {
+      background: #fff;
+      color: #111;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding-top: 50px;
+    }
+    canvas {
+      border: 1px solid #ccc;
+      border-radius: 50%;
+      margin-top: 40px;
     }
     #pointer {
-      width: 0; height: 0; border-left: 15px solid transparent;
-      border-right: 15px solid transparent; border-bottom: 30px solid black;
-      position: absolute; top: -30px; left: calc(50% - 15px); z-index: 10;
+      width: 0;
+      height: 0;
+      border-left: 20px solid transparent;
+      border-right: 20px solid transparent;
+      border-bottom: 40px solid black;
+      position: absolute;
+      top: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
     }
-    #password { font-size: 18px; margin-top: 10px; }
-    #result { margin-top: 20px; font-size: 22px; color: gold; }
+    #result {
+      margin-top: 20px;
+      font-size: 18px;
+      color: #d35400;
+    }
+    #controls {
+      margin-top: 20px;
+    }
+    input {
+      padding: 5px;
+      margin: 0 5px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+    }
   </style>
 </head>
 <body>
-  <h1>幸运大转盘</h1>
+  <h1>🎁 幸运转盘 - 抽取专属奖励！</h1>
   <div id="pointer"></div>
-  <canvas id="wheel" width="300" height="300"></canvas>
-  <br>
-  <input type="text" id="password" placeholder="请输入密码">
-  <button onclick="spin()">开始抽奖</button>
-  <div id="result"></div>
+  <canvas id="wheelCanvas" width="400" height="400"></canvas>
+
+  <div id="controls">
+    <input type="password" id="password" placeholder="请输入抽奖密码">
+    <button onclick="spin()">开始抽奖</button>
+  </div>
+
+  <p id="result"></p>
 
   <script>
-    const prizes = ['谢谢参与', '-5元优惠', '免费一局', '再来一次', '9折优惠', '当天免费'];
-    const colors = ['#666', '#4caf50', '#ff9800', '#2196f3', '#e91e63', '#ffd700'];
-    const canvas = document.getElementById("wheel");
+    const canvas = document.getElementById("wheelCanvas");
     const ctx = canvas.getContext("2d");
+    const prizes = [
+      { label: "-5元优惠", color: "#f44336" },
+      { label: "免费一局", color: "#4caf50" },
+      { label: "再来一次", color: "#2196f3" },
+      { label: "9折优惠", color: "#ff9800" },
+      { label: "当天免费", color: "#9c27b0" },
+      { label: "谢谢参与", color: "#607d8b" }
+    ];
+
+    let angle = 0;
 
     function drawWheel() {
-      const angle = 2 * Math.PI / prizes.length;
+      const arc = (2 * Math.PI) / prizes.length;
       for (let i = 0; i < prizes.length; i++) {
+        const start = i * arc;
         ctx.beginPath();
-        ctx.fillStyle = colors[i];
-        ctx.moveTo(150, 150);
-        ctx.arc(150, 150, 150, i * angle, (i + 1) * angle);
+        ctx.moveTo(200, 200);
+        ctx.fillStyle = prizes[i].color;
+        ctx.arc(200, 200, 180, start, start + arc);
         ctx.fill();
+
+        ctx.save();
+        ctx.translate(200, 200);
+        ctx.rotate(start + arc / 2);
+        ctx.textAlign = "right";
         ctx.fillStyle = "#fff";
-        ctx.font = "14px sans-serif";
-        ctx.translate(150, 150);
-        ctx.rotate(angle / 2 + i * angle);
-        ctx.fillText(prizes[i], 70, 0);
-        ctx.rotate(-angle / 2 - i * angle);
-        ctx.translate(-150, -150);
+        ctx.font = "16px Arial";
+        ctx.fillText(prizes[i].label, 160, 5);
+        ctx.restore();
       }
     }
 
-    let currentRotation = 0;
     drawWheel();
 
     function spin() {
-      const password = document.getElementById("password").value.trim();
-      if (!password) return alert("请输入密码");
-
+      const password = document.getElementById("password").value;
       fetch("https://hokboost.ngrok.io/spin", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ key: password })
       })
-      .then(res => res.json())
-      .then(data => {
-        if (!data.success) {
-          document.getElementById("result").textContent = "❌ " + data.message;
-          return;
-        }
+        .then(res => res.json())
+        .then(data => {
+          if (!data.success) {
+            document.getElementById("result").textContent = "❌ " + data.message;
+            return;
+          }
 
-        const angle = data.angle;
-        currentRotation += 360 * 10; // 保证转几圈
-        const finalRotation = currentRotation + (360 - (angle % 360));
-        canvas.style.transform = `rotate(${finalRotation}deg)`;
+          const prizeIndex = prizes.findIndex(p => p.label === data.prize);
+          const arc = 360 / prizes.length;
+          const baseAngle = 360 - (prizeIndex * arc) + (arc / 2);
 
-        setTimeout(() => {
-          document.getElementById("result").textContent = "🎉 恭喜获得：" + data.prize;
-        }, 5200);
-      });
+          const randomExtra = Math.random() * (arc / 3) - arc / 6;
+          const targetAngle = 360 * 5 + baseAngle + randomExtra;
+
+          const duration = 4000;
+          const start = performance.now();
+
+          function animate(now) {
+            const t = Math.min((now - start) / duration, 1);
+            const ease = 1 - Math.pow(1 - t, 3);
+            angle = targetAngle * ease;
+
+            ctx.clearRect(0, 0, 400, 400);
+            ctx.save();
+            ctx.translate(200, 200);
+            ctx.rotate((angle * Math.PI) / 180);
+            ctx.translate(-200, -200);
+            drawWheel();
+            ctx.restore();
+
+            if (t < 1) {
+              requestAnimationFrame(animate);
+            } else {
+              document.getElementById("result").textContent = `🎉 恭喜你抽中了：${data.prize}！请截图联系我领取。`;
+            }
+          }
+
+          requestAnimationFrame(animate);
+        })
+        .catch(err => {
+          document.getElementById("result").textContent = "请求失败：" + err;
+        });
     }
   </script>
 </body>
 </html>
-
 
