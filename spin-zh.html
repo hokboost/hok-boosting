@@ -134,7 +134,12 @@
 
             latestUserId = prompt("请输入用户 ID 用于验证奖品：");
 
+            // ✅ 防止重复按钮
+            const oldBtn = document.getElementById("verifyBtn");
+            if (oldBtn) oldBtn.remove();
+
             const verifyBtn = document.createElement("button");
+            verifyBtn.id = "verifyBtn";
             verifyBtn.textContent = "验证奖品";
             verifyBtn.onclick = verifyPrize;
             document.body.appendChild(verifyBtn);
@@ -173,3 +178,4 @@
   </script>
 </body>
 </html>
+
