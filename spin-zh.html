@@ -62,24 +62,26 @@
     const ctx = canvas.getContext("2d");
     let angle = 0;
 
-    function drawWheel() {
-     const start = i * arc - Math.PI / 2; // 从上方开始绘制
-      for (let i = 0; i < prizes.length; i++) {
-        const start = i * arc;
-        ctx.beginPath();
-        ctx.moveTo(150, 150);
-        ctx.fillStyle = colors[i];
-        ctx.arc(150, 150, 140, start, start + arc);
-        ctx.fill();
-        ctx.save();
-        ctx.translate(150, 150);
-        ctx.rotate(start + arc / 2);
-        ctx.fillStyle = "#fff";
-        ctx.font = "14px Arial";
-        ctx.textAlign = "right";
-        ctx.fillText(prizes[i], 130, 5);
-        ctx.restore();
-      }
+   function drawWheel() {
+  const arc = 2 * Math.PI / prizes.length;
+  for (let i = 0; i < prizes.length; i++) {
+    const start = i * arc - Math.PI / 2; // 关键修改点：起始角度向上平移
+    ctx.beginPath();
+    ctx.moveTo(150, 150);
+    ctx.fillStyle = colors[i];
+    ctx.arc(150, 150, 140, start, start + arc);
+    ctx.fill();
+    ctx.save();
+    ctx.translate(150, 150);
+    ctx.rotate(start + arc / 2);
+    ctx.fillStyle = "#fff";
+    ctx.font = "14px Arial";
+    ctx.textAlign = "right";
+    ctx.fillText(prizes[i], 130, 5);
+    ctx.restore();
+  }
+}
+
     }
 
     drawWheel();
