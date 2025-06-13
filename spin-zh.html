@@ -118,7 +118,7 @@
         const arc = 360 / prizes.length;
         const baseAngle = data.index * arc;
         const offset = arc / 2 + 2; 
-        const finalAngle = 360 * 5 + (360 - (baseAngle + offset)); // 多圈旋转，视觉落到中奖位置
+        const finalAngle = 360 * 5 + (270 - (baseAngle + offset)); // 多圈旋转，视觉落到中奖位置
 
         const duration = 4000;
         const start = performance.now();
