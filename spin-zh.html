@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8" />
   <title>幸运转盘 - KingBoost Pro</title>
-  <script src="https://cdn.jsdelivr.net/npm/js-sha256@0.9.0/src/sha256.min.js"></script>
   <style>
     body {
       background: #ffffff;
@@ -62,12 +61,6 @@
     const canvas = document.getElementById("wheel");
     const ctx = canvas.getContext("2d");
 
-    // ✅ 安全签名验证（仅前端验证，不包含 secret）
-    function verifySig(prize, index, sig) {
-      const possibleSecrets = ['ServerOnlySecret123!']; // ✅ 服务端的 secret，仅你本地测试用
-      return possibleSecrets.some(secret => sha256(prize + index + secret) === sig);
-    }
-
     function drawWheel() {
       const arc = 2 * Math.PI / prizes.length;
       for (let i = 0; i < prizes.length; i++) {
@@ -98,10 +91,11 @@
       }
 
       const timestamp = Math.floor(Date.now() / 1000);
+      const nonce = crypto.randomUUID(); // browser-native UUID
       fetch("https://hokboost.ngrok.io/spin", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ key, timestamp })
+        body: JSON.stringify({ key, timestamp, nonce })
       })
       .then(res => res.json())
       .then(data => {
@@ -110,15 +104,17 @@
           return;
         }
 
-        if (!verifySig(data.prize, data.index, data.sig)) {
-          document.getElementById("result").textContent = "❌ 奖励验证失败，请刷新重试。";
+        const prize = data.prize;
+        const index = prizes.indexOf(prize);
+        if (index === -1) {
+          document.getElementById("result").textContent = "❌ 奖项无效，请联系管理员。";
           return;
         }
 
         const arc = 360 / prizes.length;
-        const baseAngle = data.index * arc;
-        const offset = arc / 2 + 2; 
-        const finalAngle = 360 * 5 + (270 - (baseAngle + offset)); // 多圈旋转，视觉落到中奖位置
+        const baseAngle = index * arc;
+        const offset = arc / 2 + 2;
+        const finalAngle = 360 * 5 + (270 - (baseAngle + offset));
 
         const duration = 4000;
         const start = performance.now();
@@ -138,7 +134,7 @@
           if (t < 1) requestAnimationFrame(animate);
           else {
             document.getElementById("result").textContent =
-              `🎉 恭喜你抽中了：${data.prize}！请截图联系我领取。`;
+              `🎉 恭喜你抽中了：${prize}！请截图联系我领取。`;
           }
         }
 
@@ -151,5 +147,3 @@
   </script>
 </body>
 </html>
-
-
