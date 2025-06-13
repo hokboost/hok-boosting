@@ -92,14 +92,12 @@
       }
 
       const timestamp = Math.floor(Date.now() / 1000);
-      const secret = 'MySuperSecretKey123'; // 前端硬编码密钥（用于签名）
-      const signature = sha256(timestamp + secret);
+     fetch("https://hokboost.ngrok.io/spin", {
+       method: "POST",
+      headers: { "Content-Type": "application/json" },
+       body: JSON.stringify({ key, timestamp })
+       });
 
-      fetch("https://hokboost.ngrok.io/spin", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ key, timestamp, signature })
-      })
         .then(res => res.json())
         .then(data => {
           if (!data.success) {
