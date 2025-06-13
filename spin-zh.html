@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>幸运转盘 - KingBoost Pro</title>
+  <script src="https://cdn.jsdelivr.net/npm/js-sha256@0.9.0/src/sha256.min.js"></script>
   <style>
     body {
       background: #ffffff;
@@ -60,7 +61,6 @@
     const colors = ["#f44336", "#4caf50", "#2196f3", "#ff9800", "#9c27b0", "#607d8b"];
     const canvas = document.getElementById("wheel");
     const ctx = canvas.getContext("2d");
-    let angle = 0;
 
     function drawWheel() {
       const arc = 2 * Math.PI / prizes.length;
@@ -91,10 +91,14 @@
         return;
       }
 
+      const timestamp = Math.floor(Date.now() / 1000);
+      const secret = 'MySuperSecretKey123'; // 前端硬编码密钥（用于签名）
+      const signature = sha256(timestamp + secret);
+
       fetch("https://hokboost.ngrok.io/spin", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ key })
+        body: JSON.stringify({ key, timestamp, signature })
       })
         .then(res => res.json())
         .then(data => {
@@ -103,14 +107,14 @@
             return;
           }
 
-          const finalAngle = 360 * 5 + (360 - data.angle); // 指针固定在上方，需调整方向
+          const finalAngle = 360 * 5 + (360 - data.angle);
           const duration = 4000;
           const start = performance.now();
 
           function animate(now) {
             const t = Math.min((now - start) / duration, 1);
             const eased = 1 - Math.pow(1 - t, 3);
-            angle = finalAngle * eased;
+            const angle = finalAngle * eased;
             ctx.clearRect(0, 0, 300, 300);
             ctx.save();
             ctx.translate(150, 150);
@@ -121,8 +125,8 @@
 
             if (t < 1) requestAnimationFrame(animate);
             else {
-             document.getElementById("result").textContent =
-  `           🎉 恭喜你抽中了：${data.prize}！请截图联系我领取。`;
+              document.getElementById("result").textContent =
+                `🎉 恭喜你抽中了：${data.prize}！请截图联系我领取。`;
             }
           }
 
