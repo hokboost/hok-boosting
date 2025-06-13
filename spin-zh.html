@@ -61,6 +61,7 @@
     const colors = ["#f44336", "#4caf50", "#2196f3", "#ff9800", "#9c27b0", "#607d8b"];
     const canvas = document.getElementById("wheel");
     const ctx = canvas.getContext("2d");
+    const serverSecret = 'ServerOnlySecret123!'; // must match backend
 
     function drawWheel() {
       const arc = 2 * Math.PI / prizes.length;
@@ -92,47 +93,54 @@
       }
 
       const timestamp = Math.floor(Date.now() / 1000);
-     fetch("https://hokboost.ngrok.io/spin", {
-       method: "POST",
-      headers: { "Content-Type": "application/json" },
-       body: JSON.stringify({ key, timestamp })
-       })
+      fetch("https://hokboost.ngrok.io/spin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ key, timestamp })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (!data.success) {
+          document.getElementById("result").textContent = "❌ " + data.message;
+          return;
+        }
 
-        .then(res => res.json())
-        .then(data => {
-          if (!data.success) {
-            document.getElementById("result").textContent = "❌ " + data.message;
-            return;
+        // ✅ Verify backend signature
+        const checkSig = sha256(data.prize + data.angle + serverSecret);
+        if (checkSig !== data.sig) {
+          document.getElementById("result").textContent = "❌ 奖励验证失败，请刷新重试。";
+          return;
+        }
+
+        // ✅ If valid, animate
+        const finalAngle = 360 * 5 + (360 - data.angle);
+        const duration = 4000;
+        const start = performance.now();
+
+        function animate(now) {
+          const t = Math.min((now - start) / duration, 1);
+          const eased = 1 - Math.pow(1 - t, 3);
+          const angle = finalAngle * eased;
+          ctx.clearRect(0, 0, 300, 300);
+          ctx.save();
+          ctx.translate(150, 150);
+          ctx.rotate((angle * Math.PI) / 180);
+          ctx.translate(-150, -150);
+          drawWheel();
+          ctx.restore();
+
+          if (t < 1) requestAnimationFrame(animate);
+          else {
+            document.getElementById("result").textContent =
+              `🎉 恭喜你抽中了：${data.prize}！请截图联系我领取。`;
           }
+        }
 
-          const finalAngle = 360 * 5 + (360 - data.angle);
-          const duration = 4000;
-          const start = performance.now();
-
-          function animate(now) {
-            const t = Math.min((now - start) / duration, 1);
-            const eased = 1 - Math.pow(1 - t, 3);
-            const angle = finalAngle * eased;
-            ctx.clearRect(0, 0, 300, 300);
-            ctx.save();
-            ctx.translate(150, 150);
-            ctx.rotate((angle * Math.PI) / 180);
-            ctx.translate(-150, -150);
-            drawWheel();
-            ctx.restore();
-
-            if (t < 1) requestAnimationFrame(animate);
-            else {
-              document.getElementById("result").textContent =
-                `🎉 恭喜你抽中了：${data.prize}！请截图联系我领取。`;
-            }
-          }
-
-          requestAnimationFrame(animate);
-        })
-        .catch(() => {
-          document.getElementById("result").textContent = "❌ 请求失败，请检查网络连接。";
-        });
+        requestAnimationFrame(animate);
+      })
+      .catch(() => {
+        document.getElementById("result").textContent = "❌ 请求失败，请检查网络连接。";
+      });
     }
   </script>
 </body>
