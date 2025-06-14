@@ -109,10 +109,7 @@
           return;
         }
 
-        const prizeCount = prizes.length;
-        const prizeOffset = 360 / prizeCount / 2;
-        const finalAngle = 360 * 5 + (270 - data.angle - prizeOffset);
-
+        const finalAngle = 360 * 5 + (270 - data.angle); // 
         const duration = 4000;
         const start = performance.now();
 
