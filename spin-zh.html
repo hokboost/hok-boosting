@@ -109,7 +109,7 @@
           return;
         }
 
-        const finalAngle = 360 * 5 + (270 - data.angle); // 
+        const finalAngle = 360 * 5 + (270 - data.angle); // animate to target
         const duration = 4000;
         const start = performance.now();
 
@@ -125,22 +125,16 @@
           drawWheel();
           ctx.restore();
 
-          if (t < 1) {
-            requestAnimationFrame(animate);
-          } else {
+          if (t < 1) requestAnimationFrame(animate);
+          else {
             document.getElementById("result").textContent = "✅ 抽奖完成！点击验证领取奖励。";
-
             latestProof = data.proof;
             latestTimestamp = timestamp;
             latestAngle = data.angle;
 
-            const uid = prompt("请输入你的用户 ID 以验证奖品：");
-            if (!uid || isNaN(uid)) {
-              document.getElementById("result").textContent = "❌ 无效的用户 ID，无法验证奖品。";
-              return;
-            }
-            latestUserId = parseInt(uid);
+            latestUserId = prompt("请输入用户 ID 用于验证奖品：");
 
+            // ✅ 防止重复按钮
             const oldBtn = document.getElementById("verifyBtn");
             if (oldBtn) oldBtn.remove();
 
@@ -160,10 +154,7 @@
     }
 
     function verifyPrize() {
-      if (!latestProof || !latestUserId || !latestAngle || !latestTimestamp) {
-        document.getElementById("result").textContent = "❌ 缺少验证参数。";
-        return;
-      }
+      if (!latestProof || !latestUserId || !latestAngle || !latestTimestamp) return;
 
       fetch("https://secure-spin-server.onrender.com/verify-prize", {
         method: "POST",
@@ -180,11 +171,10 @@
         if (!data.success) {
           document.getElementById("result").textContent = "❌ 奖品验证失败：" + data.message;
         } else {
-          document.getElementById("result").textContent = `🎉 恭喜你获得奖品：${data.prize}`;
+          document.getElementById("result").textContent = 🎉 恭喜你获得奖品：${data.prize};
         }
       });
     }
   </script>
 </body>
 </html>
-
