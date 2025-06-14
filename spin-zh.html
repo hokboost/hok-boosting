@@ -109,7 +109,7 @@
           return;
         }
 
-        const finalAngle = 360 * 5 + (270 - data.angle); // 确保目标奖项转到顶部
+        const finalAngle = 360 * 5 + (270 - data.angle); // ← 保留昨天的固定 270° 顶部指向
         const duration = 4000;
         const start = performance.now();
 
@@ -125,15 +125,16 @@
           drawWheel();
           ctx.restore();
 
-          if (t < 1) {
-            requestAnimationFrame(animate);
-          } else {
+          if (t < 1) requestAnimationFrame(animate);
+          else {
             document.getElementById("result").textContent = "✅ 抽奖完成！点击验证领取奖励。";
             latestProof = data.proof;
             latestTimestamp = timestamp;
             latestAngle = data.angle;
-            latestUserId = data.userId; // 原本直接用后端返回的 userId
 
+            latestUserId = prompt("请输入用户 ID 用于验证奖品："); // ← 恢复弹窗
+
+            // 防止重复按钮
             const oldBtn = document.getElementById("verifyBtn");
             if (oldBtn) oldBtn.remove();
 
