@@ -97,7 +97,7 @@
       const timestamp = Math.floor(Date.now() / 1000);
       const nonce = crypto.randomUUID();
 
-      fetch("https://hokboost.ngrok.io/spin", {
+      fetch("https://secure-spin-server.onrender.com/spin", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ key, timestamp, nonce })
@@ -156,7 +156,7 @@
     function verifyPrize() {
       if (!latestProof || !latestUserId || !latestAngle || !latestTimestamp) return;
 
-      fetch("https://hokboost.ngrok.io/verify-prize", {
+      fetch("https://secure-spin-server.onrender.com/verify-prize", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -178,4 +178,3 @@
   </script>
 </body>
 </html>
-
