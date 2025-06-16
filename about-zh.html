@@ -1,18 +1,86 @@
 <!DOCTYPE html>
 <html lang="zh">
-<head>
+<<head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>关于我 - KingBoost Pro</title>
   <style>
-    body { background: #0e0e0e; color: #fff; font-family: Arial; margin: 0; padding: 0; }
-    header { background: #1a1a1a; padding: 20px 0; text-align: center; }
-    header h1 { color: #f0c040; margin: 0; }
-    nav a { color: #f0c040; margin: 0 15px; text-decoration: none; font-weight: bold; font-size: 16px; }
-    .container { padding: 20px; max-width: 900px; margin: auto; }
-    iframe { border: none; border-radius: 10px; margin-top: 20px; }
-    #surprise { display: none; margin-top: 20px; color: #f0c040; text-align: center; }
+    body {
+      background: #0e0e0e;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background: #1a1a1a;
+      padding: 20px 10px;
+      text-align: center;
+    }
+
+    header h1 {
+      color: #f0c040;
+      margin: 0;
+      font-size: 6vw;
+      max-font-size: 36px;
+    }
+
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      padding-top: 10px;
+    }
+
+    nav a {
+      color: #f0c040;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 4vw;
+      max-font-size: 18px;
+    }
+
+    .container {
+      padding: 20px;
+      margin: auto;
+      max-width: 900px;
+      font-size: 4vw;
+    }
+
+    @media (min-width: 768px) {
+      .container {
+        font-size: 16px;
+      }
+
+      nav a {
+        font-size: 16px;
+      }
+
+      header h1 {
+        font-size: 32px;
+      }
+    }
+
+    iframe {
+      border: none;
+      border-radius: 10px;
+      margin-top: 20px;
+      width: 100%;
+      height: 56.25vw; /* 16:9 aspect ratio */
+      max-height: 400px;
+    }
+
+    #surprise {
+      display: none;
+      margin-top: 20px;
+      color: #f0c040;
+      text-align: center;
+    }
   </style>
 </head>
+
 <body>
 
 <header>
