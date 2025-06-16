@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>🧐 KingBoost 在线答题</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 30px;
+    }
+    #question {
+      font-size: 20px;
+      margin: 20px 0;
+    }
+    .option {
+      margin: 10px auto;
+      padding: 10px;
+      border: 1px solid #ccc;
+      cursor: pointer;
+      width: 60%;
+      border-radius: 8px;
+      transition: background-color 0.2s;
+    }
+    .option:hover {
+      background-color: #f0f0f0;
+    }
+    #timer {
+      font-size: 18px;
+      color: red;
+    }
+    #result {
+      margin-top: 30px;
+      font-size: 22px;
+      color: green;
+      word-break: break-word;
+    }
+    #leaderboard {
+      margin-top: 40px;
+      font-size: 18px;
+      display: none;
+    }
+    table {
+      margin: 0 auto;
+      border-collapse: collapse;
+      width: 80%;
+    }
+    table th, table td {
+      border: 1px solid #ccc;
+      padding: 8px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🧐 KingBoost 在线答题</h1>
+  <div id="user-section">
+    <p>请输入你的用户名：</p>
+    <input type="text" id="username" placeholder="用户名" />
+    <button onclick="startQuiz()">开始答题</button>
+  </div>
+  <div id="quiz" style="display:none">
+    <p id="timer"></p>
+    <div id="question"></div>
+    <div id="options"></div>
+  </div>
+  <div id="result"></div>
+  <div id="leaderboard">
+    <h2>🏆 今日排行榜</h2>
+    <table>
+      <thead>
+        <tr><th>排名</th><th>用户名</th><th>得分</th><th>时间</th></tr>
+      </thead>
+      <tbody id="leaderboard-body"></tbody>
+    </table>
+  </div>
+
+  <script>
+  const SERVER = "https://quiz-server-xbm0.onrender.com";
+  let username = "";
+  let currentIndex = 0;
+  let totalQuestions = 15;
+  let answers = [];
+  let timerId;
+  let timeLeft = 30;
+  let seenIds = [];
+  let lock = false;
+
+  async function startQuiz() {
+    username = document.getElementById("username").value.trim();
+    if (!username) return alert("请输入用户名！");
+
+    document.getElementById("user-section").style.display = "none";
+    document.getElementById("quiz").style.display = "block";
+    answers = [];
+    currentIndex = 0;
+    timeLeft = 30;
+    seenIds = [];
+    startTimer();
+    await loadNext();
+  }
+
+  function startTimer() {
+    document.getElementById("timer").textContent = `倒计时：${timeLeft} 秒`;
+    timerId = setInterval(() => {
+      timeLeft--;
+      document.getElementById("timer").textContent = `倒计时：${timeLeft} 秒`;
+      if (timeLeft <= 0) {
+        clearInterval(timerId);
+        submitQuiz();
+      }
+    }, 1000);
+  }
+
+  let currentToken = null;
+  let currentSignature = null;
+
+  async function loadNext() {
+    if (currentIndex >= totalQuestions) return submitQuiz();
+    const res = await fetch(`${SERVER}/quiz/next`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ seen: seenIds })
+    });
+    const data = await res.json();
+    if (!data.success || !data.question) return submitQuiz();
+
+    currentToken = data.token;
+    currentSignature = data.signature;
+    seenIds.push(data.question.id);
+    showQuestion(data.question);
+  }
+
+  function showQuestion(q) {
+    lock = false;
+    const qDiv = document.getElementById("question");
+    const opts = document.getElementById("options");
+    qDiv.textContent = `题目 ${currentIndex + 1}：${q.question}`;
+    opts.innerHTML = "";
+
+    q.options.forEach((opt, idx) => {
+      const div = document.createElement("div");
+      div.className = "option";
+      div.textContent = opt;
+      div.onclick = () => {
+        if (lock) return;
+        lock = true;
+
+        Array.from(document.getElementsByClassName("option")).forEach(el => {
+          el.onclick = null;
+          el.style.pointerEvents = "none";
+        });
+
+        // ✅ 添加 signature
+        answers.push({
+          token: currentToken,
+          signature: currentSignature,
+          answerIndex: idx
+        });
+
+        currentIndex++;
+        loadNext();
+      };
+      opts.appendChild(div);
+    });
+  }
+
+  async function submitQuiz() {
+    clearInterval(timerId);
+    const timestamp = Math.floor(Date.now() / 1000);
+    const nonce = crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2);
+
+    const res = await fetch(`${SERVER}/quiz/submit`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, answers, timestamp, nonce })
+    });
+
+    const result = await res.json();
+    document.getElementById("quiz").style.display = "none";
+    const resultDiv = document.getElementById("result");
+
+    if (result.success) {
+      resultDiv.innerHTML = `✅ 答题结束！得分：<b>${result.score}/${result.total}</b><br>签名：<code>${result.proof}</code>`;
+      loadLeaderboard();
+    } else {
+      resultDiv.textContent = "提交失败：" + result.message;
+    }
+  }
+
+  function loadLeaderboard() {
+    fetch(`${SERVER}/quiz/leaderboard`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && Array.isArray(data.leaderboard)) {
+          const board = document.getElementById("leaderboard");
+          const tbody = document.getElementById("leaderboard-body");
+          board.style.display = "block";
+          tbody.innerHTML = "";
+
+          data.leaderboard.forEach((r, i) => {
+            const row = document.createElement("tr");
+            row.innerHTML = `<td>${i + 1}</td><td>${r.username}</td><td>${r.score}</td><td>${new Date(r.submitted_at).toLocaleTimeString('zh-CN', { hour12: false })}</td>`;
+            tbody.appendChild(row);
+          });
+        }
+      });
+  }
+</script>
+
+</body>
+</html>
+
+
